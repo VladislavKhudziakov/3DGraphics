@@ -145,7 +145,7 @@ class Color {
 const effect = new Effect(canvas, gl, initShaders, VSHADER_SOURCE, 
   FSHADER_SOURCE, 'u_FragColor', 'a_Position', 'a_PointSize');
 
-  effect.start();
+  //effect.start();
 
 
 
