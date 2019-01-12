@@ -1,3 +1,4 @@
+
 const VSHADER_SOURCE =`
 attribute vec4 a_Position;
 attribute float a_PointSize;
@@ -8,8 +9,9 @@ void main()
 }`;
 
 const FSHADER_SOURCE =`
+precision mediump float;
 uniform vec4 u_FragColor;
-void main() 
+void main()
 {
   gl_FragColor = u_FragColor; 
 }`;
@@ -18,70 +20,132 @@ void main()
 const canvas = document.getElementById('example');
 const gl = canvas.getContext('webgl');
 
-initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE);
-
-let u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
-console.log(u_FragColor);
-
-let a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-let a_PointSize = gl.getAttribLocation(gl.program, 'a_PointSize');
-//console.log(u_FragColor);
-
-/*
-let timer = setInterval((() => {
-  let value = -1.0;
-  let size = 10.0;
-  return () => {
-    value += 0.01;
-    size += 1;
-    if(value >= 1.0) {
-      value = -1.0;
-    }
-    if (size >= 30) {
-      size = 10.0;
-    }
-    gl.vertexAttrib1f(a_PointSize, size);
-    gl.vertexAttrib4f(a_Position, value, 0.0, 0.0, 1.0);
-    
-  }
-})(), 10);*/
-
-let g_Positions = [];
-
 gl.clearColor(0.0, 0.0, 0.0, 1.0);
 gl.clear(gl.COLOR_BUFFER_BIT);
 
-canvas.addEventListener('mousedown', function(event){
-  let xCord = event.clientX.toFixed(1);
-  let yCord = event.clientY.toFixed(1);
-  const rect = event.target.getBoundingClientRect();
+class Effect {
 
-  xCord = ((xCord - rect.left) - canvas.width / 2) / (canvas.width / 2);
-  yCord = (canvas. height / 2 - (yCord - rect.top)) / (canvas.height / 2);
-  const pointCord = {
-    x: xCord,
-    y: yCord,
-    z: 0.0,
-    w: 1.0
+  constructor(
+  canvas, context, init, vShader, 
+  fShader, u_frColName, a_PosName, a_PointSizeName
+  ) {
+
+    this._colors = {
+      red: [1.0, 0.0, 0.0, 1.0],
+      green: [0.0, 1.0, 0.0, 1.0],
+      blue: [0.0, 0.0, 1.0, 1.0],
+      white: [1.0, 1.0, 1.0, 1.0],
+    };
+
+    this._canvas = canvas;
+    this._gl = context;
+    this._init = init;
+
+    init(context, vShader, fShader);
+
+    this.u_FragColor = context.getUniformLocation(
+      context.program, 
+      u_frColName
+    );
+    this.a_Position = context.getAttribLocation(
+      context.program, 
+      a_PosName
+    );
+    this.a_PointSize = context.getAttribLocation(
+      context.program, 
+      a_PointSizeName
+    );
+
+    this.g_Positions = [];
+
+    this.timer;
+
   }
 
-  g_Positions.push(pointCord);
+  _genRanomSingValue(value) {
+    const signVal = Math.random();
+    if (signVal >= 0.5) {
+      return value;
+    } else {
+      return -value;
+    }
+  }
 
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  _drawPoints() {
 
-  g_Positions.forEach((pointPos) => {
-    gl.vertexAttrib4f(
-      a_Position, 
-      pointPos.x, 
-      pointPos.y, 
-      pointPos.z, 
-      pointPos.w
-    );
-    gl.vertexAttrib1f(a_PointSize, Math.random() * 10.0);
-    gl.drawArrays(gl.POINTS, 0, 1);
-  }); 
-});
+    this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+
+    this.g_Positions.forEach(point => {
+      this._gl.vertexAttrib4f(
+        this.a_Position, 
+        point.cords.x, 
+        point.cords.y, 
+        point.cords.z, 
+        point.cords.w
+      );
+      
+      this._gl.uniform4fv(this.u_FragColor, point.color);
+      this._gl.vertexAttrib1f(this.a_PointSize, Math.random() * 10.0);
+      this._gl.drawArrays(this._gl.POINTS, 0, 1);
+    });
+  }
+
+  start() {
+
+    this.timer = setInterval(() => {
+      let xCord = this._genRanomSingValue(Math.random());
+      let yCord = this._genRanomSingValue(Math.random());
+
+      let pointColor;
+      
+      if (xCord < 0 && yCord < 0) {
+        pointColor = new Color().red;
+      } else if (xCord < 0 && yCord > 0) {
+        pointColor = new Color().blue;
+      } else if (xCord > 0 && yCord > 0) {
+        pointColor = new Color().green;
+      } else if (xCord > 0 && yCord < 0) {
+        pointColor = new Color().white;
+      }
+      
+    
+      this.g_Positions.push(new Point(xCord, yCord, pointColor));
+
+      this._drawPoints();
+    }, 100);
+  }
+
+  end() {
+    clearInterval(this.timer);
+  }
+}
+
+class Point {
+  constructor(x, y, color) {
+    this.cords = {
+      x: x,
+      y: y,
+      z: 0.0,
+      w: 1.0
+    }
+    this.color = color;
+  }
+}
+
+class Color {
+  constructor() {
+    this.red = [1.0, 0.0, 0.0, 1.0];
+    this.green = [0.0, 1.0, 0.0, 1.0];
+    this.blue = [0.0, 0.0, 1.0, 1.0];
+    this.white = [1.0, 1.0, 1.0, 1.0];
+  }
+}
+
+const effect = new Effect(canvas, gl, initShaders, VSHADER_SOURCE, 
+  FSHADER_SOURCE, 'u_FragColor', 'a_Position', 'a_PointSize');
+
+  effect.start();
 
 
 
