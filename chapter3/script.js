@@ -47,6 +47,10 @@ class App {
 
     const defTransform = new Transformation().matrix;
 
+    let a = new Transformation().translate(0.5, 0.5);
+    let b = new Transformation().rotate(45); 
+    let c = new Transformation().scale(2.0, 2.0);
+
     gl.uniformMatrix4fv(this.u_TranslateMatrix, false, defTransform);
     gl.uniformMatrix4fv(this.u_ScaleMatrix, false, defTransform);
     gl.uniformMatrix4fv(this.u_RotateMatrix, false, defTransform);
@@ -77,6 +81,10 @@ class App {
   };
 
   draw() {
+    
+    this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    this._gl.clear(gl.COLOR_BUFFER_BIT);
+
     if (this.vertexCount === -1) {
       return new Error('Error: cannot draw');
     }
@@ -86,15 +94,15 @@ class App {
   transform(translation, rotation, scaling) {
     
     if(translation) {
-      this.u_TranslateMatrix = translation;
+      this._gl.uniformMatrix4fv(this.u_TranslateMatrix, false, translation);
     }
 
     if(rotation) {
-      this.u_RotateMatrix = rotation;
+      this._gl.uniformMatrix4fv(this.u_RotateMatrix, false, rotation);
     }
 
     if(scaling) {
-      this.u_ScaleMatrix = scaling;
+      this._gl.uniformMatrix4fv(this.u_ScaleMatrix, false, scaling);
     }
   }
 }
@@ -145,13 +153,63 @@ class Transformation {
 
 
 class Interface {
+  constructor(app, translateInput, rotationInput, scalingInput, applyButton) {
+    this.app = app;
+    this.translateInput = translateInput;
+    this.rotationInput = rotationInput;
+    this.scalingInput = scalingInput;
+    this.applyButton = applyButton;
 
+    this.applyButton.addEventListener('click', this.apply.bind(this));
+  }
+
+  apply(event) {
+    event.preventDefault();
+
+    const translation = this.translateInput.value.split(' ');
+    const rotation = this.rotationInput.value;
+    const scaling = this.scalingInput.value.split(' ');
+
+    let TranslationMatrix;
+    let RotationMatrix;
+    let scalingMatrix;
+
+    if (translation.length === 2) {
+      TranslationMatrix = new Transformation().translate(
+        Number(translation[0]),
+        Number(translation[1])
+      );
+    } else {
+      TranslationMatrix = null;
+    }
+    
+    if (rotation) {
+      RotationMatrix = new Transformation().rotate(Number(rotation));
+    } else {
+      RotationMatrix = null;
+    }
+
+    if (scaling.length === 2) {
+      scalingMatrix = new Transformation().scale(
+        Number(scaling[0]),
+        Number(scaling[1])
+      );
+    } else {
+      scalingMatrix = null;
+    }
+
+    this.app.transform(TranslationMatrix, RotationMatrix, scalingMatrix);
+    this.app.draw();
+  }
 };
 
 const app = new App(canvas, gl, initShaders, VSHADER_SOURCE, FSHADER_SOURCE, v);
 app.draw();
-app.transform(
-  new Transformation().translate(0.5, 0.5), 
-  new Transformation().rotate(45), 
-  new Transformation().scale(2.0, 2.0)
-);
+
+const tInp = document.getElementById('translate');
+const rInp = document.getElementById('rotate');
+const sInp = document.getElementById('scale');
+const applyBtn = document.getElementById('apply');
+
+const appInt = new Interface(app, tInp, rInp, sInp, applyBtn);
+
