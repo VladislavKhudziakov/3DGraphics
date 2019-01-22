@@ -37,9 +37,23 @@ const u_MVPmatrix = gl.getUniformLocation(gl.program, 'u_MVPmatrix');
 
 let MVPmatrix = new Matrix4();
 MVPmatrix.setPerspective(30, 1, 1, 100);
-MVPmatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0);;
+MVPmatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0);
 
-gl.uniformMatrix4fv(u_MVPmatrix, false, MVPmatrix.elements);
+var deg = 0;
+
+setInterval(() => {
+  deg += 1;
+  if(deg >= 360) {
+    deg = 0;
+  }
+  MVPmatrix.setPerspective(30, 1, 1, 100);
+  MVPmatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0);
+  MVPmatrix.rotate(deg, 0, 0);
+  gl.uniformMatrix4fv(u_MVPmatrix, false, MVPmatrix.elements);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+}, 100);
+
 
 gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
 
