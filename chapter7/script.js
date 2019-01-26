@@ -24,6 +24,7 @@ const FSHADER_SOURCE =
 precision mediump float;
 #endif
 
+uniform int u_isDiffused;
 uniform vec3 u_LightColor;
 uniform vec3 u_LightPosition;
 uniform vec3 u_AmbientLight;
@@ -33,9 +34,15 @@ varying vec3 v_Normal;
 varying vec4 v_Color;
 
 void main() {
-  vec3 normal = normalize(v_Normal);;
-
-  vec3 lightDirection = normalize(u_LightPosition - v_Position);
+  vec3 normal = v_Normal;
+  vec3 lightDirection;
+  
+  if (u_isDiffused == 1) {
+    lightDirection = normalize(u_LightPosition - v_Position);
+  } else {
+    lightDirection = normalize(u_LightPosition);
+  };
+  
   float nDotL = max(dot(lightDirection, normal), 0.0);
 
   vec3 diffuse = u_LightColor * v_Color.rgb * nDotL;
@@ -43,8 +50,6 @@ void main() {
 
   gl_FragColor = vec4(diffuse + ambient, v_Color.a);
 }`
-
-  
 
   // Retrieve <canvas> element
 const canvas = document.getElementById('chapter7');
@@ -61,15 +66,14 @@ const vertices = new Float32Array([   // Vertex coordinates
     1.0,-1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0, 1.0,-1.0,   1.0, 1.0,-1.0     // v4-v7-v6-v5 back
  ]);
 
- const colors = new Float32Array([     // Colors
-  0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,  // v0-v1-v2-v3 front(white)
-  1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,  // v0-v3-v4-v5 right(white)
-  0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,  // v0-v5-v6-v1 up(white)
-  1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0,  // v1-v6-v7-v2 left(white)
-  0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0,  // v7-v4-v3-v2 down(white)
-  1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0   // v4-v7-v6-v5 back(white)
+const colors = new Float32Array([
+  1, 1, 1,   1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v1-v2-v3 front
+  1, 1, 1,   1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v3-v4-v5 right
+  1, 1, 1,   1, 1, 1,   1, 1, 1,  1, 1, 1,     // v0-v5-v6-v1 up
+  1, 1, 1,   1, 1, 1,   1, 1, 1,  1, 1, 1,     // v1-v6-v7-v2 left
+  1, 1, 1,   1, 1, 1,   1, 1, 1,  1, 1, 1,     // v7-v4-v3-v2 down
+  1, 1, 1,   1, 1, 1,   1, 1, 1,  1, 1, 1　    // v4-v7-v6-v5 back
 ]);
-
 const normals = new Float32Array([
   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,  // v0-v3-v4-v5 right
@@ -79,7 +83,7 @@ const normals = new Float32Array([
   0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0   // v4-v7-v6-v5 back
 ]);
 
-let indices = new Uint8Array([       // Indices of the vertices
+const indices = new Uint8Array([       // Indices of the vertices
   0, 1, 2,   0, 2, 3,    // front
   4, 5, 6,   4, 6, 7,    // right
   8, 9,10,   8,10,11,    // up
@@ -170,9 +174,12 @@ class App {
     this.u_LightPosition = gl.getUniformLocation(gl.program, lightPos);
     this.u_LightDirection = gl.getUniformLocation(gl.program, lightDir);
     this.u_AmbientLight = gl.getUniformLocation(gl.program, ambientLight);
+    this.u_isDiffused = gl.getUniformLocation(gl.program, "u_isDiffused");
   }
 
   _setUniformsDefault() {
+    const gl = this.gl;
+
     gl.uniform3f(this.u_LightColor, 1.0, 1.0, 1.0);
     gl.uniform3f(this.u_AmbientLight, 0.2, 0.2, 0.2);
     gl.uniform3f(this.u_LightPosition, 5.0, 8.0, 7.0);
@@ -184,7 +191,9 @@ class App {
     this.mvpMatrix = new Matrix4();
     this.modelMatrix = new Matrix4();
     this.normalMatrix = new Matrix4();
-  
+
+    gl.uniform1i(this.u_isDiffused, 1);
+
     this.mvpMatrix.setPerspective(30, 1, 1, 100)
     .lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0);
   
@@ -258,6 +267,27 @@ class App {
     
     requestAnimationFrame(_animateRotation);
   }
+
+  changeLightType(val) {
+    this.gl.uniform1i(this.u_isDiffused, val);
+  }
+}
+
+class Interface {
+  constructor(app, btn, radGroup) {
+    this.app = app;
+    this.applyButton = btn;
+    this.radioGroup = radGroup;
+    this.app.rotate();
+    this.applyButton.addEventListener("click", this.apply.bind(this));
+  }
+
+  apply(event) {
+    event.preventDefault();
+
+    Array.prototype.forEach.call(this.radioGroup, element => 
+      element.checked ? this.app.changeLightType(Number(element.value)) : element);
+  }
 }
 
 const app = new App(
@@ -265,4 +295,8 @@ const app = new App(
   vertices, colors, normals, indices, 3
 );
 
-app.rotate();
+const interf = new Interface(
+  app,
+  document.getElementById("btn-1"),
+  document.getElementsByClassName("radioGroup1")
+);
