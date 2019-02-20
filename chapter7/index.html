@@ -2,11 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <title>Draw cube with specification of single color</title>
   </head>
-
   <body>
-    <canvas id="chapter7" width="400" height="400"></canvas>
+    <div class="container d-flex justify-content-between">
+      <canvas id="chapter7" width="700" height="700"></canvas>
+      <div>
+        <form action="#" class="form no-gutters d-flex flex-column align-items-start justify-content-start">
+            <div class="col">
+              <p>Light type:</p>
+              <div class="form-group">
+                <label for="radioGroup_1-radioBtn_1">Pointed</label>
+                <input checked value="1" class="radioGroup1" type="radio" name="radioGroup1" id="radioGroup_1-radioBtn_1">
+              </div>
+              <div class="form-group">
+                <label for="radioGroup_1-radioBtn_1">Diffused</label>
+                <input value="0" class="radioGroup1" type="radio" name="radioGroup1" id="radioGroup_1-radioBtn_2">
+              </div>
+              <button id="btn-1" class="btn btn-primary">Apply</button>
+          </div> 
+        </form>
+      </div>
+  </div>
     <script src="./lib/webgl-utils.js"></script>
     <script src="./lib/webgl-debug.js"></script>
     <script src="./lib/cuon-utils.js"></script>
