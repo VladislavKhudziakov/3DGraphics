@@ -1,7 +1,3 @@
-// import {loadFiles} from "./loadFiles";
-
-// import {main} from "./main";
-
 loadFiles('./vertex.vert', './fragment.frag', './model.json').then(main);
 
 function getFile(url) {
@@ -45,23 +41,6 @@ function main(filesSource) {
   const primitiveType = gl.TRIANGLES;
   const drawOffset = 0;
 
-  //set ortho
-  /**
-   * 0 ------- →
-   * |
-   * |
-   * |
-   * ↓
-   */
-  // const left = 0;
-  // const top = 0;
-  // const right = gl.canvas.clientWidth;
-  // const bottom = gl.canvas.clientWidth;
-  // const near = 400;
-  // const far = -400;
-
- 
-
   gl.useProgram(gl_Program);
 
   gl.clearColor(0, 0, 0, 1);
@@ -71,22 +50,42 @@ function main(filesSource) {
 
   const a_Position = initArrayBuffer(gl, 'a_Position', gl_Program, new Float32Array(mdl.vertices), 3);
   const a_Color = initArrayBuffer(gl, 'a_Color', gl_Program, new Float32Array(mdl.colors), 3);
-  // const a_Normal = initArrayBuffer(gl, 'a_Normal', new Float32Array([]))
+  const a_Normal = initArrayBuffer(gl, 'a_Normal', gl_Program, new Float32Array(mdl.normals), 3);
 
   const u_mvp = gl.getUniformLocation(gl_Program, 'u_mvp');
-  let currAngleY = 0;
+  const u_LightDirection = gl.getUniformLocation(gl_Program, 'u_LightDirection');
+  const u_LightColor = gl.getUniformLocation(gl_Program, 'u_LightColor');
+  const u_RevTrModel = gl.getUniformLocation(gl_Program, 'u_RevTrModel');
+  const u_model = gl.getUniformLocation(gl_Program, 'u_model');
+
+  let currAngleY = 130;
   let currAngleX = 0;
+  let currModelAngleY = 0;
   document.body.addEventListener('keydown', (event) => {
-    if (event.keyCode == 65) {
-      currAngleY--;
-    } else if(event.keyCode == 68) {
-      currAngleY++;
-    } else if(event.keyCode == 87) {
-      currAngleX++;
-    } else if(event.keyCode == 83) {
-      currAngleX--;
+
+    switch (event.keyCode) {
+      case 65:
+        currAngleY--;
+        break;
+      case 68:
+        currAngleY++;
+        break;
+      case 87:
+        currAngleX--;
+        break;
+      case 83:
+        currAngleX++;
+        break;
+      case 188:
+        currModelAngleY--;
+        break;
+      case 190:
+        currModelAngleY++;
+        break;
+      default:
+      console.log(event.keyCode);
+        break;
     }
-    // console.log(event.keyCode);
     draw();
   });
   draw();
@@ -95,7 +94,7 @@ function main(filesSource) {
     gl.enable(gl.DEPTH_TEST);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.clear(gl.DEPTH_BUFFER_BIT);
-      // let proj = setOrtho(right, left, top, bottom, far, near);
+
     const fov = 60;
     const aspect = canvas.clientWidth / canvas.clientHeight;
     const near = 1;
@@ -103,13 +102,13 @@ function main(filesSource) {
 
     let proj = setPerspective(fov, aspect, near, far);
 
-    const fCount = 5;
-    const fRadius = 200;
-    
+    let model = setTranslation(0, 0, -100);
+    model = mul(model, setRotationZ(180));
+    model = mul(model, setRotationY(currModelAngleY));
+
     let view = setRotationY(currAngleY);
     view = mul(view, setRotationX(currAngleX));
-    // view = mul(view, setRotationZ(180));
-    view = mul(view, setTranslation(0, 0, fRadius * 3));
+    view = mul(view, setTranslation(0, 200,  1000));
     
     const camPos = [
       view[12],
@@ -118,26 +117,22 @@ function main(filesSource) {
     ];
 
     const up = [0, 1, 0];
-    const fPos = [fRadius, 0, 0];
+    const fPos = [
+      model[12],
+      model[13],
+      model[14]
+    ];
 
     let camera = lookAt(camPos, fPos, up);
     camera = setInverse(camera);
     const vp = mul(proj, camera);
-
-    for (let i = 0; i < fCount; i++) {
-      const angle = (i * Math.PI * 2) / fCount;
-      const x = Math.cos(angle) * fRadius;
-      const y = Math.sin(angle) * fRadius;
-      
-      let model = setRotationY(0);
-      // model = mul(model, setRotationZ(180));
-      model = mul(model, setTranslation(x, 0, y));
-      // model = mul(model, s);
-      const mvp = mul(vp, model);
-      // console.log(mvp);
-      gl.uniformMatrix4fv(u_mvp, false, new Float32Array(mvp));
-      gl.drawArrays(primitiveType, drawOffset, mdl.vertices.length / 3);
-    }
+    const mvp = mul(vp, model);
+    gl.uniformMatrix4fv(u_mvp, false, new Float32Array(mvp));
+    gl.uniformMatrix4fv(u_RevTrModel, false, new Float32Array(transpose(setInverse(model))));
+    gl.uniformMatrix4fv(u_model, false, model);
+    gl.uniform3f(u_LightColor, 1, 1, 1);
+    gl.uniform3f(u_LightDirection, 0.5, 0.7, 1);
+    gl.drawArrays(primitiveType, drawOffset, mdl.vertices.length / 3); 
   }
 }
 
@@ -368,63 +363,6 @@ function cross(a, b) {
     ];
   };
 
-// function cross(v1, v2) {
-//   /**
-//    *   i     j     k
-//    * v1[0] v1[1] v1[2]
-//    * v2[0] v2[1] v2[2]
-//    */
-
-//    return [
-//      v1[1] * v2[2] - v2[1] * v2[2],
-//      v1[0] * v2[2] - v2[0] * v1[2],
-//      -(v1[0] * v2[1] - v2[0] * v1[1]) 
-//     ];
-// };
-
-
-// function substract(v1, v2) {
-//   return[
-//     v1[0] - v2[0],
-//     v1[1] - v2[1],
-//     v1[2] - v2[2]
-//   ];
-// };
-
-// function normalize(v) {
-//   const len = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-
-//   if(len > 0.00001) {
-    
-//     return[
-//       v[0] / len,
-//       v[1] / len,
-//       v[2] / len
-//     ];
-//   } else {
-//     return [
-//       0,
-//       0,
-//       0
-//     ];
-//   }
-// };
-
-
-// function setLookAt(camPos, targetPos, up) {
-//   let zPos = normalize(substract(targetPos, camPos));
-//   let xPos = normalize(cross(up, zPos));
-//   let yPos = normalize(cross(zPos, xPos));
-  
-//   return [
-//       xPos[0],   xPos[1],   xPos[2],   0,
-//       yPos[0],   yPos[1],   yPos[2],   0,
-//       zPos[0],   zPos[1],   zPos[2],   0,
-//     camPos[0], camPos[1], camPos[2],   1
-//   ];
-// };
-
-
 function setInverse(m) {
   var m00 = m[0 * 4 + 0];
   var m01 = m[0 * 4 + 1];
@@ -507,5 +445,15 @@ function setInverse(m) {
           (tmp_22 * m32 + tmp_14 * m02 + tmp_19 * m12)),
     d * ((tmp_22 * m22 + tmp_16 * m02 + tmp_21 * m12) -
           (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02))
+  ];
+};
+
+
+function transpose(m) {
+  return [
+    m[0], m[4], m[8], m[12],
+    m[1], m[5], m[9], m[13],
+    m[2], m[6], m[10], m[14],
+    m[3], m[7], m[11], m[15],
   ];
 };
