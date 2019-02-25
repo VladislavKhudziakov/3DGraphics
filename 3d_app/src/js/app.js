@@ -67,6 +67,66 @@ export class App {
   };
 
 
+  initFloatArrayAttributeBuffer(program, attribute, data, count) {
+    const gl = this._gl;
+    const floatData = new Float32Array(data);
+    this.attributes[attribute] = webglController.initArrayBuffer(
+      gl, program, attribute, floatData, count, gl.FLOAT, false
+    );
+  };
+
+
+  initMatrixUniform(program, uniform, data, matrixIndex) {
+    const gl = this._gl;
+    this.uniforms[uniform] = gl.getUniformLocation(program, uniform);
+    const floatData = new Float32Array(data);
+    console.log();
+    
+    switch (matrixIndex) {
+      case 2:
+        gl.uniformMatrix2fv(this.uniforms[uniform], false, floatData);
+        break;
+      case 3:
+        gl.uniformMatrix3fv(this.uniforms[uniform], false, floatData);
+        break;
+      case 4:
+        gl.uniformMatrix4fv(this.uniforms[uniform], false, floatData);
+        break;
+      default:
+        console.error('invalid matrix index');
+        break;
+    }
+  };
+
+
+  initVectorUniform(program, uniform, data, vectorIndex) {
+    const gl = this._gl;
+    this.uniforms[uniform] = gl.getUniformLocation(program, uniform);
+    const floatData = new Float32Array(data);
+    switch (vectorIndex) {
+      case 2:
+        gl.uniform2fv(this.uniforms[uniform], false, floatData);
+        break;
+      case 3:
+        gl.uniform3fv(this.uniforms[uniform], false, floatData);
+        break;
+      case 4:
+        gl.uniform4fv(this.uniforms[uniform], false, floatData);
+        break;
+      default:
+        console.error('invalid matrix index');
+        break;
+    }
+  };
+
+
+  initFloatUniform(program, uniform, data) {
+    const gl = this._gl;
+    this.uniforms[uniform] = gl.getUniformLocation(program, uniform);
+    gl.uniform1f(this.uniforms[uniform], false, data);
+  };
+
+
   clearColor(colorString) {
     const gl = this._gl;
     const color = colorString.split(' ');
@@ -115,7 +175,7 @@ export class App {
 
   setCameraModel(x, y, z, angleX, angleY, angleZ) {
     const matrix = new Mat4();
-    matrix.rotate(angleX, angleY, angleZ).translate(x, y, z);
+    matrix.rotate(angleX, angleY, angleZ).translate(x, -y, z);
 
     this.cameraModel = matrix;
     this.cameraPosition = new Vec3(
@@ -147,13 +207,14 @@ export class App {
 
   
   transformModel(tX, tY, tZ, sX, sY, sZ, aX, aY, aZ) {
-    this.model.scale(sX, sY, sZ).rotate(aX, aY, aZ).translate(tX, tY, tZ);
+    this.model.scale(sX, sY, sZ).rotate(aX, aY, aZ).translate(tX, -tY, tZ);
   };
 
 
   setMVP() {
-    this.mvp = new Mat4();
-    this.mvp.mul(this.perspective).mul(this.view).mul(this.model);
+    this.mvp = new Mat4();    
+    this.mvp.mul(this.perspective).mul(this.view)
+    .mul(this.model);
   };
 
 

@@ -8,7 +8,7 @@ export class Mat4 {
       0, 0, 1, 0,
       0, 0, 0, 1
     ];
-  }
+  };
 
 
   setScale(x, y, z) {
@@ -20,7 +20,7 @@ export class Mat4 {
     ];
 
     return this;
-  }
+  };
 
 
   setTranslate(x, y, z) {
@@ -28,11 +28,11 @@ export class Mat4 {
       1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
-      x, y, z, 0
+      x, y, z, 1
     ];
 
     return this;
-  }
+  };
 
 
   setAngleX(angle) {
@@ -49,7 +49,7 @@ export class Mat4 {
     ];
 
     return this;
-  }
+  };
 
 
   setAngleY(angle) {
@@ -64,8 +64,9 @@ export class Mat4 {
       s,  0,  c,  0, 
       0,  0,  0,  1
     ];
+
     return this;
-  }
+  };
 
 
   setAngleZ(angle) {
@@ -82,15 +83,13 @@ export class Mat4 {
     ];
 
     return this;
-  }
+  };
 
 
   scale(x, y, z) {
     const matrix = new Mat4();
     matrix.setScale(x, y, z);
-
     this.mul(matrix);
-
     return this;
   };
 
@@ -98,51 +97,41 @@ export class Mat4 {
   translate(x, y, z) {
     const matrix = new Mat4();
     matrix.setTranslate(x, y, z);
-
     this.mul(matrix);
-
     return this;
-  }
+  };
 
 
   rotate(aX, aY, aZ) {
     const matrix = new Mat4();
     matrix.setAngleX(aX).rotateY(aY).rotateZ(aZ);
-
     this.mul(matrix);
-
     return this;
-  }
+  };
 
 
   rotateX(angle) {
     const matrix = new Mat4();
     matrix.setAngleX(angle);
-
     this.mul(matrix);
-
     return this;
-  }
+  };
 
 
   rotateY(angle) {
     const matrix = new Mat4();
     matrix.setAngleY(angle);
-
     this.mul(matrix);
-
     return this;
-  }
+  };
 
 
   rotateZ(angle) {
     const matrix = new Mat4();
     matrix.setAngleZ(angle);
-
     this.mul(matrix);
-
     return this;
-  }
+  };
 
 
   setOrtho(left, right, top, bottom, near, far) {
@@ -161,13 +150,13 @@ export class Mat4 {
     ];
   
     return this;
-  }
+  };
 
   setPerspective(fov, aspect, near, far) {
     const fovRad = (Math.PI * fov) / 180;
-    const tn = Math.tan(fovRad / 2);
+    const tn = Math.tan(Math.PI * 0.5 - 0.5 * fovRad);
     const sX = 1 / (aspect * tn);
-    const sY = 1 / tn;
+    const sY = -1 / tn;
     const sZ = -((far + near) / (far - near));
     const tZ = -((2 * far * near) / (far - near));
   
@@ -179,7 +168,7 @@ export class Mat4 {
     ];
 
     return this;
-  }
+  };
 
   setLookAt(camPos, targetPos, up) {
     
@@ -201,7 +190,7 @@ export class Mat4 {
     ];
 
     return this;
-  }
+  };
 
 
   mul(m) {
@@ -231,12 +220,13 @@ export class Mat4 {
     this.elements = e;
     
     return this;
-  }
+  };
 
   inverse() {
     let i, det;
   
     let s = this.elements;
+    
     let d =  new Array(16);
     let inv = new Array(16);
   
@@ -285,9 +275,11 @@ export class Mat4 {
     for (i = 0; i < 16; i++) {
       d[i] = inv[i] * det;
     }
-  
+    
+    this.elements = d;
+    
     return this;
-  }
+  };
 
 
   transpose = function() {
@@ -303,5 +295,5 @@ export class Mat4 {
     t = e[11];  e[11] = e[14];  e[14] = t;
   
     return this;
-  }
+  };
 }
