@@ -7,7 +7,9 @@ export class VBO {
     this.buffer = null;
     this.data = data;
     this.size = size;
-  }
+
+    return this;
+  };
 
   init(normalized = false, type = this.gl.FLOAT) {
     const gl = this.gl;
@@ -20,5 +22,5 @@ export class VBO {
     gl.vertexAttribPointer(this.attribute, this.size, type, normalized, 0, 0);
 
     return this;
-  }
+  };
 }

@@ -16,11 +16,13 @@ export class Camera {
 
   setTarget(x, y, z) {
     this.target = new Vec3(x, y, z);
+    return this;
   };
 
   
   setUp(x, y, z) {
     this.up = new Vec3(x, y, z);
+    return this;
   };
 
 
@@ -29,10 +31,12 @@ export class Camera {
     this.position = new Vec3(
       this.model.elements[12], this.model.elements[13], this.model.elements[14]
     );
+    return this;
   };
 
 
   updateView() {
     this.view.setLookAt(this.position, this.target, this.up);
+    return this;
   };
 }
