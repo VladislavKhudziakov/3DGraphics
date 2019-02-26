@@ -5,8 +5,8 @@ export class webglController {
     gl.compileShader(shader);
 
     const message = gl.getShaderInfoLog(shader);
-
-    if (message.lenght > 0) {
+    
+    if (message.length > 0) {
       throw message;
     } else {
       return shader;
@@ -22,7 +22,7 @@ export class webglController {
 
     const message = gl.getProgramInfoLog(program);
 
-    if (message.lenght > 0) {
+    if (message.length > 0) {
       throw message;
     } else {
       return program;

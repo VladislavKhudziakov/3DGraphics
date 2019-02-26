@@ -105,13 +105,13 @@ export class App {
     const floatData = new Float32Array(data);
     switch (vectorIndex) {
       case 2:
-        gl.uniform2fv(this.uniforms[uniform], false, floatData);
+        gl.uniform2fv(this.uniforms[uniform], floatData);
         break;
       case 3:
-        gl.uniform3fv(this.uniforms[uniform], false, floatData);
+        gl.uniform3fv(this.uniforms[uniform], floatData);
         break;
       case 4:
-        gl.uniform4fv(this.uniforms[uniform], false, floatData);
+        gl.uniform4fv(this.uniforms[uniform], floatData);
         break;
       default:
         console.error('invalid matrix index');
@@ -123,7 +123,7 @@ export class App {
   initFloatUniform(program, uniform, data) {
     const gl = this._gl;
     this.uniforms[uniform] = gl.getUniformLocation(program, uniform);
-    gl.uniform1f(this.uniforms[uniform], false, data);
+    gl.uniform1f(this.uniforms[uniform], data);
   };
 
 
@@ -207,7 +207,7 @@ export class App {
 
   
   transformModel(tX, tY, tZ, sX, sY, sZ, aX, aY, aZ) {
-    this.model.scale(sX, sY, sZ).rotate(aX, aY, aZ).translate(tX, -tY, tZ);
+    this.model.scale(sX, sY, sZ).translate(tX, -tY, tZ).rotate(aX, aY, aZ);
   };
 
 
