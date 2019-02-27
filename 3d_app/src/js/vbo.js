@@ -5,7 +5,7 @@ export class VBO {
     this.attrName = attrName;
     this.attribute = null;
     this.buffer = null;
-    this.data = data;
+    this.data = new Float32Array(data);
     this.size = size;
 
     return this;

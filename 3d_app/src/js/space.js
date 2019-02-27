@@ -1,11 +1,15 @@
-import { Mat4 } from "../../lib/matrix4";
+import { Mat4 } from "../../lib/matrix4.js";
 
 export class Projection {
-  constructor() {
+  constructor(gl) {
+    this._gl = gl;
     this.projection = new Mat4();
+
+    return this;
   }
 
-  setPerspective(fov, aspect, near, far) {
+  setPerspective(fov, near, far) {
+    const aspect = this._gl.canvas.clientWidth / this._gl.canvas.clientHeight;
     this.projection.setPerspective(fov, aspect, near, far);
 
     return this;

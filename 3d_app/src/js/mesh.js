@@ -1,9 +1,8 @@
-import { Mat4 } from "../../lib/matrix4";
+import { Mat4 } from "../../lib/matrix4.js";
 
 export class Mesh {
-  constructor(gl, program, file, size) {
+  constructor(gl, file, size) {
     this.gl = gl;
-    this.program = program;
     this.file = file;
     this.size = size;
     this.model = new Mat4();
@@ -12,8 +11,7 @@ export class Mesh {
 
   draw() {
     const gl = this.gl;
-    gl.drawArrays(gl.TRIANGLES, 0, this.file.vertices / this.size);
-
+    gl.drawArrays(gl.TRIANGLES, 0, this.file.vertices.length / this.size);
     return this;
   };
 
@@ -31,4 +29,4 @@ export class Mesh {
     return this;
   };
   
-}
+};

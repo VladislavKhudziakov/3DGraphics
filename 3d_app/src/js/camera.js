@@ -11,6 +11,8 @@ export class Camera {
     this.up = new Vec3(0, 1, 0);
     this.view = new Mat4();
     this.view.setLookAt(this.position, this.target, this.up);
+
+    return this;
   };
 
 
@@ -27,7 +29,9 @@ export class Camera {
 
 
   setModel(tx, ty, tz, ax, ay, az) {
-    this.model.translate(tx, ty, tz).rotate(ax, ay, az);
+    const matrix = new Mat4();
+    matrix.rotate(ax, ay, az).translate(tx, -ty, tz);
+    this.model = matrix;
     this.position = new Vec3(
       this.model.elements[12], this.model.elements[13], this.model.elements[14]
     );
@@ -36,7 +40,9 @@ export class Camera {
 
 
   updateView() {
-    this.view.setLookAt(this.position, this.target, this.up);
+    const matrix = new Mat4();
+    matrix.setLookAt(this.position, this.target, this.up).inverse();
+    this.view = matrix;
     return this;
   };
 }

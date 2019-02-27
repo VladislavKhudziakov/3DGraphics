@@ -1,6 +1,10 @@
 import {App} from "../src/js/app.js"
-import { Vec3 } from "../lib/vector3.js";
 import { Mat4 } from "../lib/matrix4.js";
+import { ShaderProgram } from "../src/js/shaderProgram.js";
+import { Mesh } from "../src/js/mesh.js";
+import { Projection } from "../src/js/space.js";
+import { Camera } from "../src/js/camera.js";
+import { LightSource } from "../src/js/lightSource.js";
 
 document.addEventListener('DOMContentLoaded', main);
 
@@ -11,60 +15,46 @@ function main() {
     '../src/shaders/fShader2.frag',
     '../src/meshes/fModel.json')
   .then(data => {
-    app.addVertShader(data.vShader, 'vShader3D');
-    app.addFragShader(data.fShader, 'fShader3D');
-    app.addMesh(data.mesh, 'model');
-    app.addProgram(
-      app.vShaders.vShader3D, app.fShaders.fShader3D, 'program3D'
-    );
+    const g = app.getGl();
+
+    const program = new ShaderProgram(g, data.vShader, data.fShader).use();
+    const mesh = new Mesh(g, JSON.parse(data.mesh), 3)
+    .setTransform(0, 0, 100, 1, 1, 1, 0, 0, 0);
+    const space = new Projection(g).setPerspective(100, 1, 2000);
+    const camera = new Camera().setModel(0, 70, 300, 0, 30, 0)
+    .setTarget(0, 0, 0).setUp(0, 1, 0).updateView();
+    const light = new LightSource(200, 200, 30, 1, 1, 1, 30);
     
     app.enableDepthTest();
     app.clearColor("0 0 0 1");
     app.clearDepth();
-
-    app.applyProgram(app.programs.program3D);
-    const currProgram = app.programs.program3D;
-    const vertices = app.meshes.model.vertices;
-    const colors = app.meshes.model.colors;
-    const normals = app.meshes.model.normals;
+    
+    const vertices = mesh.file.vertices;
+    const colors = mesh.file.colors;
+    const normals =  mesh.file.normals;
 
     const gl = app.getGl();
 
-    /**
-     * TODO: think over this shit
-     */
-    app.setPerspective(100, 1, 2000);
-    app.transformModel(0, 0, 130, 1, 1, 1, 0, 0, 0);
-    app.setCameraModel(0, 70, 300, 0, 30, 0);
+    app.perspective = space.projection;
+    app.view = camera.view;
+    app.cameraPosition = camera.position;
+    app.model = mesh.model;
     
     const modelCopy = Object.assign(new Mat4(), app.model);
-    
     modelCopy.inverse().transpose();
-    
-    const cameraTarget = { 
-      x: app.model.elements[12], 
-      y: app.model.elements[13], 
-      z: app.model.elements[14]
-    };
-
-    app.setCameraTarget(cameraTarget.x, cameraTarget.y, cameraTarget.z);
-    app.setCameraUp(0, 1, 0);
-    app.setVew();
     
     app.setMVP(app.mvp.elements);
 
-    app.initFloatArrayAttributeBuffer(currProgram, 'a_Position', vertices, 3);
-    app.initFloatArrayAttributeBuffer(currProgram, 'a_Color', colors, 3);
-    app.initFloatArrayAttributeBuffer(currProgram, 'a_Normal', normals, 3);
-    
-    app.initMatrixUniform(currProgram, 'u_MVP', app.mvp.elements, 4);
-    app.initMatrixUniform(currProgram, 'u_RTModel', modelCopy.elements, 4);
-    app.initMatrixUniform(currProgram, 'u_Model', app.model.elements, 4);
-    app.initVectorUniform(currProgram, 'u_LightPosition', [200, 200, 30], 3);
-    app.initVectorUniform(currProgram, 'u_CameraPosition', app.cameraPosition.elements, 3);
-    app.initVectorUniform(currProgram, 'u_LightColor', [1, 1, 1], 3);
-    app.initFloatUniform(currProgram, 'u_HighlightPower', 30);
+    program.addVBO('a_Position', vertices, 3).addVBO('a_Color', colors, 3)
+    .addVBO('a_Normal', normals, 3).addUniform('u_MVP', app.mvp, 'matf', 4)
+    .addUniform('u_MVP', app.mvp, 'matf', 4)
+    .addUniform('u_RTModel', modelCopy, 'matf', 4)
+    .addUniform('u_Model', app.model, 'matf', 4)
+    .addUniform('u_LightPosition', light.position, 'vecf', 3)
+    .addUniform('u_CameraPosition', camera.position, 'vecf', 3)
+    .addUniform('u_LightColor', light.color, 'vecf', 3)
+    .addUniform('u_HighlightPower', light.power, 'f');
 
-    app.drawMeshArr(app.meshes.model, 3, gl.TRIANGLES);
+    mesh.draw();
   });
 }
