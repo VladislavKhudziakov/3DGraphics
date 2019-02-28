@@ -53,7 +53,7 @@ export class ShaderProgram {
     return this;
   };
 
-  addVBO(bufferName, data, size, init = true) {
+  initVBO(bufferName, data, size, init = true) {
     const gl = this._gl;
     this.VBOs[bufferName] = new VBO(gl, this.program, bufferName, data, size);
     if (init) {
@@ -63,7 +63,7 @@ export class ShaderProgram {
     return this;
   }
 
-  addUniform(uniformName, data, type, index, init = true, send = true) {
+  initUniform(uniformName, data, type, index, init = true, send = true) {
     const gl = this._gl;
     this.uniforms[uniformName] = new Uniform(
       gl, this.program, uniformName, data);

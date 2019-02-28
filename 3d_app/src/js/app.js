@@ -1,31 +1,21 @@
-import {webglController} from "../../lib/webgl-controller.js";
 import {Mat4} from "../../lib/matrix4.js";
-import{Vec3} from "../../lib/vector3.js"
 
 export class App {
   constructor(canvasId) {
-    const canvas = document.getElementById(canvasId); 
+    const canvas = document.getElementById(canvasId);
     this._gl = canvas.getContext('webgl');
     this.meshes = {};
-    this.programs = {};
-
-    this.attributes = {};
-    this.uniforms = {};
 
     this.perspective = new Mat4();
-    this.cameraModel = new Mat4();
-    this.cameraPosition = new Vec3();
-    this.cameraTarget = new Vec3();
-    this.cameraUp = new Vec3();
+    this.view = new Mat4();
     this.model = new Mat4();
-    this.mvp = new Mat4();
   };
 
 
   async loadFiles(vShader, fShader, meshFile) {
-    const vShaderSource = await this.loadFile(vShader).catch(console.log);
-    const fShaderSource = await this.loadFile(fShader).catch(console.log);
-    const mesh = await this.loadFile(meshFile).catch(console.log);
+    const vShaderSource = await this.loadFile(vShader).catch(console.error);
+    const fShaderSource = await this.loadFile(fShader).catch(console.error);
+    const mesh = await this.loadFile(meshFile).catch(console.error);
 
     return {
       vShader: vShaderSource,
@@ -36,15 +26,24 @@ export class App {
 
 
   addMesh(mesh, meshName) {
-    this.meshes[meshName] = JSON.parse(mesh);
+    this.meshes[meshName] = mesh;
   };
 
-  
-  addProgram(vShader, fShader, programName) {
-    const gl = this._gl;
-    const program = webglController.initProgram(gl, vShader, fShader);
-    this.programs[programName] = program;
-  };
+
+  // set perspective(perspective) {
+  //   this.perspective = perspective;
+
+  // };
+
+
+  // set view(view) {
+  //   this.view = view;
+  // };
+
+
+  // set model(model) {
+  //   this.model = model;
+  // };
 
 
   clearColor(colorString) {
@@ -64,20 +63,6 @@ export class App {
   enableDepthTest() {
     const gl = this._gl;
     gl.enable(gl.DEPTH_TEST);
-  };
-
-
-  addUniform(uniformName, uniform) {
-    const gl = this._gl;
-    this.uniforms[uniformName] = uniform;
-  };
-
-
-
-  setMVP() {
-    this.mvp = new Mat4();    
-    this.mvp.mul(this.perspective).mul(this.view)
-    .mul(this.model);
   };
 
 
