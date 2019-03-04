@@ -5,9 +5,10 @@ export class App {
     const canvas = document.getElementById(canvasId);
     this._gl = canvas.getContext('webgl');
     this.meshes = {};
+    this.lights = {};
 
-    this.perspective = new Mat4();
-    this.view = new Mat4();
+    this.projection = null;
+    this.camera = null;
     this.model = new Mat4();
   };
 
@@ -25,25 +26,39 @@ export class App {
   };
 
 
-  addMesh(mesh, meshName) {
-    this.meshes[meshName] = mesh;
+  addMesh(mesh, name) {
+    this.meshes[name] = mesh;
+
+    return this;
   };
 
 
-  // set perspective(perspective) {
-  //   this.perspective = perspective;
+  addLight(light, name) {
+    this.lights[name] = light;
 
-  // };
-
-
-  // set view(view) {
-  //   this.view = view;
-  // };
+    return this;
+  };
 
 
-  // set model(model) {
-  //   this.model = model;
-  // };
+  setProjection(projection) {
+    this.projection = projection;
+
+    return this;
+  };
+
+
+  setCamera(camera) {
+    this.camera = camera;
+
+    return this;
+  };
+
+
+  setModel(model) {
+    this.model = model;
+
+    return this;
+  };
 
 
   clearColor(colorString) {
@@ -51,24 +66,57 @@ export class App {
     const color = colorString.split(' ');
     gl.clearColor(color[0], color[1], color[2], color[3]);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    return this;
   };
 
 
   clearDepth() {
     const gl = this._gl;
     gl.clear(gl.DEPTH_BUFFER_BIT);
+
+    return this;
   };
 
 
   enableDepthTest() {
     const gl = this._gl;
     gl.enable(gl.DEPTH_TEST);
+
+    return this;
   };
 
 
   getGl() {
     return this._gl;
   };
+
+
+  drawScene() {
+    for (const key in this.meshes) {
+      if (this.meshes.hasOwnProperty(key)) {
+        const currMesh = this.meshes[key];
+        currMesh.setMVP(this.projection.projection, this.camera.view);
+        currMesh.program.initVBO('a_Position', currMesh.file.position, 3)
+        .initVBO('a_Color', currMesh.file.colors, 3)
+        .initUniform('u_MVP', currMesh.mvp, 'matf', 4)
+        .initUniform('u_ColorMult', currMesh.colorMult, 'vecf', 3);
+        currMesh.draw();
+      }
+    }
+  }
+
+  rotateMeshes() {
+    for (const key in this.meshes) {
+      if (this.meshes.hasOwnProperty(key)) {
+        const currMesh = this.meshes[key];
+        currMesh.currRotX = currMesh.currRotX > 360 ? 0 : currMesh.currRotX + 1;
+        currMesh.currRotY = currMesh.currRotY > 360 ? 0 : currMesh.currRotY + 2;
+        currMesh.setTransform(currMesh.offsetX, 0, 0, 2, 2, 2, currMesh.currRotX, currMesh.currRotY, 0);
+
+      }
+    }
+  }
 
 
   loadFile(url) {
