@@ -6,6 +6,8 @@ import { Projection } from "../src/js/space.js";
 import { Camera } from "../src/js/camera.js";
 import { LightSource } from "../src/js/lightSource.js";
 import { Vec3 } from "../lib/vector3.js";
+import { Node } from "../src/js/node.js";
+
 
 document.addEventListener('DOMContentLoaded', main);
 
@@ -21,72 +23,84 @@ function main() {
     sphereData.vertices = sphereData.position;
     sphereData.colors = sphereData.color;
     sphereData.normals = sphereData.normal;
-
-    const cubeData = createFlattenedVertices(gl, primitives.createCubeVertices(20));
-    cubeData.vertices = cubeData.position;
-    cubeData.colors = cubeData.color;
-    cubeData.normals = cubeData.normal;
-    
-    const coneData = createFlattenedVertices(gl, primitives.createTruncatedConeVertices(10, 0, 20, 12, 1, true, false));
-    coneData.vertices = coneData.position;
-    coneData.colors = coneData.color;
-    coneData.normals = coneData.normal;
     
     const program = new ShaderProgram(gl, data.vShader, data.fShader).use();
 
-    // const sphereMesh = new Mesh()
-    const mesh = new Mesh(gl, JSON.parse(data.mesh), 3, program)
-    .setTransform(0, 0, -100, 1, 1, 1, 0, -20, 0);
+    const sunMesh = new Mesh(gl, sphereData, 3, program);
+    sunMesh.currRotX = 0;
+    sunMesh.currRotY = 0;
+    sunMesh.offsetX = 0;
+    sunMesh.colorMult = new Vec3(0.4, 0.4, 0);
+    sunMesh.colorOffset = new Vec3(0.6, 0.6, 0);
+    sunMesh.setTransform(
+      sunMesh.offsetX, 0, 0, 1, 1, 1, 
+      sunMesh.currRotX, sunMesh.currRotY, 0
+    );
 
-    const sphereMesh = new Mesh(gl, sphereData, 3, program);
-    sphereMesh.currRotX = 0;
-    sphereMesh.currRotY = 0;
-    sphereMesh.offsetX = 0;
-    sphereMesh.colorMult = new Vec3(0.5, 1, 0.5);
+    const earthMesh = new Mesh(gl, sphereData, 3, program);
+    earthMesh.currRotX = 0;
+    earthMesh.currRotY = 0;
+    earthMesh.offsetX = 0;
+    earthMesh.offsetY = 0;
+    earthMesh.offsetZ = 100;
+    earthMesh.colorMult = new Vec3(0.8, 0.5, 0.2);
+    earthMesh.colorOffset = new Vec3(0.2, 0.5, 0.8);
+    earthMesh.setTransform(
+      earthMesh.offsetX, earthMesh.offsetY,
+      earthMesh.offsetZ, 1, 1, 1, earthMesh.currRotX,
+      earthMesh.currRotY, 0
+    );
 
-    sphereMesh.setTransform(sphereMesh.offsetX, 0, 0, 2, 2, 2, sphereMesh.currRotX, sphereMesh.currRotY, 0);
-
-    const cubeMesh = new Mesh(gl, cubeData, 3, program);
-    cubeMesh.currRotX = 0;
-    cubeMesh.currRotY = 0;
-    cubeMesh.offsetX = -100;
-    cubeMesh.colorMult = new Vec3(1, 0.5, 0.5);
-    cubeMesh.setTransform(cubeMesh.offsetX, 0, 0, 2, 2, 2, cubeMesh.currRotX, cubeMesh.currRotY, 0);
-
-    const coneMesh = new Mesh(gl, coneData, 3, program);
-    coneMesh.currRotX = 0;
-    coneMesh.currRotY = 0;
-    coneMesh.offsetX = 100;
-    coneMesh.colorMult = new Vec3(0.5, 0.5, 1);
-    coneMesh.setTransform(coneMesh.offsetX, 0, 0, 2, 2, 2, coneMesh.currRotX, coneMesh.currRotY, 0);
+    const moonMesh = new Mesh(gl, sphereData, 3, program);
+    moonMesh.currRotX = 0;
+    moonMesh.currRotY = 0;
+    moonMesh.offsetX = 0;
+    moonMesh.offsetY = 0;
+    moonMesh.offsetZ = 25;
+    moonMesh.colorMult = new Vec3(0.1, 0.1, 0.1);
+    moonMesh.colorOffset = new Vec3(0.6, 0.6, 0.6);
+    moonMesh.setTransform(
+      moonMesh.offsetX, moonMesh.offsetY,
+      moonMesh.offsetZ, 1, 1, 1, moonMesh.currRotX,
+      moonMesh.currRotY, 0
+    );
 
     const projection = new Projection(gl).setPerspective(100, 1, 2000);
-    const camera = new Camera().setModel(0, 70, 200, 0, 0, 0)
+
+    const camera = new Camera().setModel(0, 200, 1, 0, 0, 0)
     .setTarget(
-      sphereMesh.position.elements[0],
-      sphereMesh.position.elements[1],
-      sphereMesh.position.elements[2],
+      0, 0, 0
     ).setUp(0, 1, 0).updateView();
+
     const light = new LightSource(200, 200, 10, 1, 1, 1, 10);
+
+    const sunNode = new Node(sunMesh, null);
+    const earthNode = new Node(earthMesh, sunNode);
+    const moonNode = new Node(moonMesh, earthNode);
+    sunNode.addChildren(earthNode);
+    earthNode.addChildren(moonNode);
+    sunNode.computeWorldMatrix();
+    console.log(moonNode.localMatrix.elements);
     
+
     app.enableDepthTest().clearColor("0 0 0 1").clearDepth()
-    .setProjection(projection).setCamera(camera)
-    .addMesh(sphereMesh, 'sphereMesh').addMesh(cubeMesh, 'cubeMesh')
-    .addMesh(coneMesh, 'coneMesh').setProjection(projection)
-    .setCamera(camera).addLight(light, 'gLight');
-    
-    const modelCopy = Object.assign(new Mat4(), mesh.model);
-    modelCopy.inverse().transpose();
+    .addMesh(sunMesh, 'sphereMesh').addMesh(earthMesh, 'earthMesh').addMesh(moonMesh, 'moonMesh')
+    .setProjection(projection).setCamera(camera).addLight(light, 'gLight').setNode(sunNode);
     
     app.drawScene();
-    
-    requestAnimationFrame(rotate)
-    function rotate() {
-      app.enableDepthTest().clearColor("0 0 0 1").clearDepth();
-      app.rotateMeshes();
-      app.drawScene();
-      requestAnimationFrame(rotate);
-    }
+    let angle = 0;
+    // requestAnimationFrame(rotate)
+    // function rotate() {
+    //   app.enableDepthTest().clearColor("0 0 0 1").clearDepth();
+    //   angle++;
+    //   sunMesh.setTransform(
+    //     sunMesh.offsetX, 0, 0, 1, 1, 1, 
+    //     sunMesh.currRotX, angle, 0
+    //   );
+    //   app.node.computeWorldMatrix();
+    //   app.drawScene();
+    //   requestAnimationFrame(rotate);
+    // }
   });
 }
 

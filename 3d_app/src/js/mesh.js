@@ -37,7 +37,7 @@ export class Mesh {
     return this;
   };
 
-  setMVP(perspective, view, globModel) {
+  setMVP(perspective, view) {
     this.mvp = new Mat4();    
     this.mvp.mul(perspective).mul(view).mul(this.model);
 

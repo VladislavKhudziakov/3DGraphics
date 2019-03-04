@@ -9,6 +9,7 @@ export class App {
 
     this.projection = null;
     this.camera = null;
+    this.node = null;
     this.model = new Mat4();
   };
 
@@ -60,6 +61,10 @@ export class App {
     return this;
   };
 
+  setNode(node) {
+    this.node = node;
+  }
+
 
   clearColor(colorString) {
     const gl = this._gl;
@@ -100,7 +105,8 @@ export class App {
         currMesh.program.initVBO('a_Position', currMesh.file.position, 3)
         .initVBO('a_Color', currMesh.file.colors, 3)
         .initUniform('u_MVP', currMesh.mvp, 'matf', 4)
-        .initUniform('u_ColorMult', currMesh.colorMult, 'vecf', 3);
+        .initUniform('u_ColorMult', currMesh.colorMult, 'vecf', 3)
+        .initUniform('u_ColorOffset', currMesh.colorOffset, 'vecf', 3);
         currMesh.draw();
       }
     }
