@@ -92,11 +92,11 @@ function main() {
 
 var createFlattenedVertices = function(gl, vertices) {
   return primitives.makeRandomVertexColors(
-          primitives.deindexVertices(vertices),
-          {
-            vertsPerColor: 6,
-            rand: function(ndx, channel) {
-              return channel < 3 ? ((128 + Math.random() * 128) | 0) : 255;
-            }
-          })
+    primitives.deindexVertices(vertices),
+    {
+      vertsPerColor: 6,
+      rand: function(ndx, channel) {
+        return channel < 3 ? ((128 + Math.random() * 128) | 0) : 255;
+      }
+    })
 };
