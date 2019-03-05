@@ -1,18 +1,22 @@
 import { Mat4 } from "../../lib/matrix4.js";
 
 export class Node {
+  /**
+   * продумать взаимодействие с моделью + отправку все в буферы и униформы
+   * переделать нахуй всю прилагу?????
+   * передаем меш, родительский нод
+   * меш нужен для получения данных о вершине
+   * нужен вспомогательный класс для модели???
+   * 
+   */
   constructor(localMesh, parentNode) {
     this.parentNode = parentNode;
-    this.localMesh = localMesh;
+    this.mesh = localMesh;
     if (this.parentNode) {
-      this.parentMesh = this.parentNode.localMesh;
-      this.worldMatrix = this.parentMesh.model;
-    } else {
-      this.worldMatrix = this.localMatrix;
+      this.worldMatrix = this.parentNode.mesh.model;
     }
-    this.localMatrix = this.localMesh.model;
-    
-
+    this.localMatrix = Object.assign(new Mat4(), this.mesh.model);
+    this.localMatrix_ = Object.assign(new Mat4(), this.mesh.model);
     this.children = [];
   };
 
@@ -36,14 +40,16 @@ export class Node {
 
 
   computeWorldMatrix() {
-    if(this.worldMatrix) {
-      this.localMatrix.mul(this.worldMatrix);
-      console.log(this.localMatrix);
-    } else {
-      this.worldMatrix = new Mat4();
+    if (this.worldMatrix) {
+      const worldMatrix = Object.assign(new Mat4(), this.worldMatrix);
+      this.localMatrix = worldMatrix.mul(this.localMatrix_);
+      this.mesh.model = this.localMatrix;
     }
-
-    this.children.forEach(child => child.computeWorldMatrix());
+    
+    this.children.forEach(child => {
+      child.worldMatrix = this.mesh.model;
+      child.computeWorldMatrix();
+    });
 
     return true;
   };

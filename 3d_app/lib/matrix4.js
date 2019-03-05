@@ -8,6 +8,8 @@ export class Mat4 {
       0, 0, 1, 0,
       0, 0, 0, 1
     ];
+
+    return this;
   };
 
 

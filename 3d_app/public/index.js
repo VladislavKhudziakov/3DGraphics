@@ -79,9 +79,8 @@ function main() {
     const moonNode = new Node(moonMesh, earthNode);
     sunNode.addChildren(earthNode);
     earthNode.addChildren(moonNode);
+    console.log(earthNode.children);
     sunNode.computeWorldMatrix();
-    console.log(moonNode.localMatrix.elements);
-    
 
     app.enableDepthTest().clearColor("0 0 0 1").clearDepth()
     .addMesh(sunMesh, 'sphereMesh').addMesh(earthMesh, 'earthMesh').addMesh(moonMesh, 'moonMesh')
@@ -89,18 +88,18 @@ function main() {
     
     app.drawScene();
     let angle = 0;
-    // requestAnimationFrame(rotate)
-    // function rotate() {
-    //   app.enableDepthTest().clearColor("0 0 0 1").clearDepth();
-    //   angle++;
-    //   sunMesh.setTransform(
-    //     sunMesh.offsetX, 0, 0, 1, 1, 1, 
-    //     sunMesh.currRotX, angle, 0
-    //   );
-    //   app.node.computeWorldMatrix();
-    //   app.drawScene();
-    //   requestAnimationFrame(rotate);
-    // }
+    requestAnimationFrame(rotate)
+    function rotate() {
+      app.enableDepthTest().clearColor("0 0 0 1").clearDepth();
+      angle++;
+      sunMesh.setTransform(
+        sunMesh.offsetX, 0, 0, 1, 1, 1, 
+        sunMesh.currRotX, angle, 0
+      );
+      app.node.computeWorldMatrix();
+      app.drawScene();
+      requestAnimationFrame(rotate);
+    }
   });
 }
 
