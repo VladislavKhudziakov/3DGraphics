@@ -5,10 +5,12 @@ export class App {
     const canvas = document.getElementById(canvasId);
     this._gl = canvas.getContext('webgl');
     this.meshes = {};
+    this.drawOrder = [];
     this.lights = {};
 
     this.projection = null;
     this.camera = null;
+    this.projectionView = null;
     this.node = null;
     this.model = new Mat4();
   };
@@ -50,6 +52,13 @@ export class App {
 
   setCamera(camera) {
     this.camera = camera;
+
+    return this;
+  };
+
+
+  computeProjectionView() {
+    this.projectionView = new Mat4().mul(this.projection).mul(this.camera);
 
     return this;
   };
@@ -102,24 +111,7 @@ export class App {
       if (this.meshes.hasOwnProperty(key)) {
         const currMesh = this.meshes[key];
         currMesh.setMVP(this.projection.projection, this.camera.view);
-        currMesh.program.initVBO('a_Position', currMesh.file.position, 3)
-        .initVBO('a_Color', currMesh.file.colors, 3)
-        .initUniform('u_MVP', currMesh.mvp, 'matf', 4)
-        .initUniform('u_ColorMult', currMesh.colorMult, 'vecf', 3)
-        .initUniform('u_ColorOffset', currMesh.colorOffset, 'vecf', 3);
         currMesh.draw();
-      }
-    }
-  }
-
-  rotateMeshes() {
-    for (const key in this.meshes) {
-      if (this.meshes.hasOwnProperty(key)) {
-        const currMesh = this.meshes[key];
-        currMesh.currRotX = currMesh.currRotX > 360 ? 0 : currMesh.currRotX + 1;
-        currMesh.currRotY = currMesh.currRotY > 360 ? 0 : currMesh.currRotY + 2;
-        currMesh.setTransform(currMesh.offsetX, 0, 0, 2, 2, 2, currMesh.currRotX, currMesh.currRotY, 0);
-
       }
     }
   }

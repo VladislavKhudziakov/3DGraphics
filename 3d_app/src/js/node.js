@@ -12,11 +12,8 @@ export class Node {
   constructor(localMesh, parentNode) {
     this.parentNode = parentNode;
     this.mesh = localMesh;
-    if (this.parentNode) {
-      this.worldMatrix = this.parentNode.mesh.model;
-    }
+
     this.localMatrix = Object.assign(new Mat4(), this.mesh.model);
-    this.localMatrix_ = Object.assign(new Mat4(), this.mesh.model);
     this.children = [];
   };
 
@@ -40,16 +37,13 @@ export class Node {
 
 
   computeWorldMatrix() {
-    if (this.worldMatrix) {
-      const worldMatrix = Object.assign(new Mat4(), this.worldMatrix);
-      this.localMatrix = worldMatrix.mul(this.localMatrix_);
-      this.mesh.model = this.localMatrix;
+    if (this.parentNode) {
+      const worldMatrix = Object.assign(new Mat4(), this.parentNode.mesh.model);
+      this.mesh.model = worldMatrix.mul(this.mesh.model);
     }
+    console.log(this.mesh.model);
     
-    this.children.forEach(child => {
-      child.worldMatrix = this.mesh.model;
-      child.computeWorldMatrix();
-    });
+    this.children.forEach(child => child.computeWorldMatrix());
 
     return true;
   };

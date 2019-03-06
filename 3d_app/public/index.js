@@ -28,7 +28,7 @@ function main() {
 
     const sunMesh = new Mesh(gl, sphereData, 3, program);
     sunMesh.currRotX = 0;
-    sunMesh.currRotY = 0;
+    sunMesh.currRotY = 40;
     sunMesh.offsetX = 0;
     sunMesh.colorMult = new Vec3(0.4, 0.4, 0);
     sunMesh.colorOffset = new Vec3(0.6, 0.6, 0);
@@ -39,7 +39,7 @@ function main() {
 
     const earthMesh = new Mesh(gl, sphereData, 3, program);
     earthMesh.currRotX = 0;
-    earthMesh.currRotY = 0;
+    earthMesh.currRotY = 90;
     earthMesh.offsetX = 0;
     earthMesh.offsetY = 0;
     earthMesh.offsetZ = 100;
@@ -88,17 +88,22 @@ function main() {
     
     app.drawScene();
     let angle = 0;
-    requestAnimationFrame(rotate)
+    // requestAnimationFrame(rotate)
     function rotate() {
       app.enableDepthTest().clearColor("0 0 0 1").clearDepth();
       angle++;
-      sunMesh.setTransform(
-        sunMesh.offsetX, 0, 0, 1, 1, 1, 
-        sunMesh.currRotX, angle, 0
+      // sunMesh.setTransform(
+      //   sunMesh.offsetX, 0, 0, 1, 1, 1, 
+      //   sunMesh.currRotX, angle, 0
+      // );
+      earthMesh.setTransform(
+        earthMesh.offsetX, earthMesh.offsetY,
+        earthMesh.offsetZ, 1, 1, 1, 0,
+        angle, 0
       );
       app.node.computeWorldMatrix();
       app.drawScene();
-      requestAnimationFrame(rotate);
+      // requestAnimationFrame(rotate);
     }
   });
 }
