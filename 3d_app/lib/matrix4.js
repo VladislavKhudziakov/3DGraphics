@@ -111,6 +111,13 @@ export class Mat4 {
     return this;
   };
 
+  
+  setTransform(tx, ty, tz, sx, sy, sz, ax, ay, az) {
+    this.setTranslate(tx, ty, tz).scale(sx, sy, sz).rotate(ax, ay, az);
+
+    return this;
+  };
+
 
   rotateX(angle) {
     const matrix = new Mat4();

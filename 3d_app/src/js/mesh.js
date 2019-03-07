@@ -1,23 +1,13 @@
 import { Mat4 } from "../../lib/matrix4.js";
-import { Vec3 } from "../../lib/vector3.js";
 
-/**
- * передаем инфу, программу, размер для отрисовки
- * больше не храним модель, позицию, не трансформируем
- * контекст больше не нужен, т.к инфу о модели больше не храним
- * убрать все методы, добавить только сеттеры???
- * получится класс, хранящий только шейдерную программу, данные вершин и размер для отрисовки
- * сделать, чтобы сразу же инициализировались буферы
- * сделать, чтобы буфферы и униформы инициализировались автоматически????
- */
 export class Mesh {
-  constructor(gl, data, size, program) {
+  constructor(gl, data, size, program, scene) {
     this.gl = gl;
     this.data = data;
     this.size = size;
     this.program = program;
     this.model = new Mat4();
-    this.scene = null;
+    this.scene = scene;
   };
 
 
@@ -36,13 +26,6 @@ export class Mesh {
     return this;
   };
 
-
-  transform(tx, ty, tz, sx, sy, sz, ax, ay, az) {
-    this.model.scale(sx, sy, sz).translate(tx, ty, tz).rotate(ax, ay, az);
-
-    return this;
-  };
-
   setModel(model) {
     this.model = model;
   };
@@ -50,13 +33,15 @@ export class Mesh {
   setMVP(perspective, view) {
     this.mvp = new Mat4();    
     this.mvp.mul(perspective).mul(view).mul(this.model);
+    // console.log(this.mvp);
 
     return this;
   };
 
   computeMVP() {
-    this.mvp = Object.assign(new Mat4(), this.scene.projectionView);  
+    this.mvp = Object.assign(new Mat4(), this.scene.projectionView);
     this.mvp.mul(this.model);
+    // console.log(this.mvp);
     
     return this;
   };

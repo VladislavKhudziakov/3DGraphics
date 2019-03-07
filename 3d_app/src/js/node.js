@@ -1,20 +1,27 @@
 import { Mat4 } from "../../lib/matrix4.js";
+import { Mesh } from "./mesh.js";
 
 export class Node {
-  /**
-   * продумать взаимодействие с моделью + отправку все в буферы и униформы
-   * переделать нахуй всю прилагу?????
-   * передаем меш, родительский нод
-   * меш нужен для получения данных о вершине
-   * нужен вспомогательный класс для модели???
-   * 
-   */
-  constructor(localMesh, parentNode) {
-    this.parentNode = parentNode;
-    this.mesh = localMesh;
-
-    this.localMatrix = Object.assign(new Mat4(), this.mesh.model);
+  constructor(localData, parentNode) {
     this.children = [];
+
+    if (parentNode) {
+      this.parentNode = parentNode;
+      this.parentNode.addChild(this);
+    }
+
+    if (localData instanceof Mesh) {
+      this.mesh = localData;
+      this.localMatrix = Object.assign(new Mat4(), this.mesh.model);
+      this._localMatrix = Object.assign(new Mat4(), this.mesh.model);
+    }
+
+    if (localData instanceof Mat4) {
+      this.localMatrix = Object.assign(new Mat4(), localData);
+      this._localMatrix = Object.assign(new Mat4(), localData);
+    }
+
+    return this;
   };
 
 
@@ -26,22 +33,34 @@ export class Node {
       }
     }
     this.parentNode = parentNode;
-    this.parentNode.addChildren(this);
+    this.parentNode.addChild(this);
     return this;
   };
 
 
-  addChildren(childrenNode) {
-    this.children.push(childrenNode);
+  addChild(childNode) {
+    this.children.push(childNode);
+  };
+
+
+  setTransform(tx, ty, tz, sx, sy, sz, ax, ay, az) {
+    this._localMatrix.setTranslate(tx, ty, tz)
+    .scale(sx, sy, sz).rotate(ax, ay, az);
+
+    return this;
   };
 
 
   computeWorldMatrix() {
     if (this.parentNode) {
-      const worldMatrix = Object.assign(new Mat4(), this.parentNode.mesh.model);
-      this.mesh.model = worldMatrix.mul(this.mesh.model);
+      const worldMatrix = Object.assign(new Mat4(), this.parentNode.localMatrix);
+      this.localMatrix = worldMatrix.mul(this._localMatrix);
+    } else {
+      this.localMatrix = this._localMatrix;
     }
-    console.log(this.mesh.model);
+    if(this.mesh) {
+      this.mesh.setModel(this.localMatrix);
+    }
     
     this.children.forEach(child => child.computeWorldMatrix());
 

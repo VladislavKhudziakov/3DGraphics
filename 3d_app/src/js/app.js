@@ -58,7 +58,7 @@ export class App {
 
 
   computeProjectionView() {
-    this.projectionView = new Mat4().mul(this.projection).mul(this.camera);
+    this.projectionView = new Mat4().mul(this.projection.projection).mul(this.camera.view);
 
     return this;
   };
@@ -110,7 +110,7 @@ export class App {
     for (const key in this.meshes) {
       if (this.meshes.hasOwnProperty(key)) {
         const currMesh = this.meshes[key];
-        currMesh.setMVP(this.projection.projection, this.camera.view);
+        currMesh.computeMVP();
         currMesh.draw();
       }
     }
