@@ -26,7 +26,7 @@ function main() {
 
     const projection = new Projection(gl).setPerspective(100, 1, 2000);
 
-    const camera = new Camera().setModel(0, 200, 1, 0, 0, 0)
+    const camera = new Camera().setModel(0, 0, 250, 0, 0, 0)
     .setTarget(0, 0, 0).setUp(0, 1, 0).updateView();
     
     const program = new ShaderProgram(gl, data.vShader, data.fShader).use();
@@ -59,24 +59,18 @@ function main() {
       new Mat4().setTransform(0, 0, 100, 1, 1, 1, 0, 0, 0), sunOrbitNode);
     const moonOrbitNode = new Node(
       new Mat4().setTransform(0, 0, 45, 1, 1, 1, 0, 0, 0), earthOrbitNode);
-    
-    
     const sunNode = new Node(sunMesh, sunOrbitNode);
     const earthNode = new Node(earthMesh, earthOrbitNode);
     const moonNode = new Node(moonMesh, moonOrbitNode);
     sunOrbitNode.computeWorldMatrix();
-    console.log(moonOrbitNode.localMatrix);
-    // const sunNode = new Node(sunMesh, null);
-    // const earthNode = new Node(earthMesh, sunNode);
-    // const moonNode = new Node(moonMesh, earthNode);
-    // sunNode.computeWorldMatrix();
 
     app.addMesh(sunMesh, 'sphereMesh').addMesh(earthMesh, 'earthMesh').addMesh(moonMesh, 'moonMesh')
-    .addLight(light, 'gLight').setNode(sunNode);
+    .addLight(light, 'gLight').setNode(sunOrbitNode);
     
     app.drawScene();
     let angle = 0;
-    requestAnimationFrame(rotate)
+    requestAnimationFrame(rotate);
+    
     function rotate() {
       app.enableDepthTest().clearColor("0 0 0 1").clearDepth();
       angle++;
