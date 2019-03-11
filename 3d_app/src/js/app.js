@@ -78,7 +78,8 @@ export class App {
   clearColor(colorString) {
     const gl = this._gl;
     const color = colorString.split(' ');
-    gl.clearColor(color[0], color[1], color[2], color[3]);
+    
+    gl.clearColor(+color[0], +color[1], +color[2], +color[3]);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     return this;

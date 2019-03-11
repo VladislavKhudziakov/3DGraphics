@@ -17,6 +17,7 @@ export class Mesh {
     this.initBuffers();
     this.initUniforms();
     gl.drawArrays(gl.TRIANGLES, 0, this.data.vertices.length / this.size);
+
     return this;
   };
 
@@ -48,12 +49,13 @@ export class Mesh {
 
   initBuffers() {
     this.program.initVBO('a_Position', this.data.vertices, this.size);
-    // this.program.initVBO('a_Color', this.data.colors, this.size);
     this.program.initVBO('a_uv', this.data.uv, 2);
   };
 
   initUniforms() {
     this.program.initUniform('u_MVP', this.mvp, 'matf', 4);
     this.program.initUniform('u_texture', 0, 'i');
+
+    return this;
   };
 };

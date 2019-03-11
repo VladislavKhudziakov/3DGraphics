@@ -8,6 +8,7 @@ import { LightSource } from "../src/js/lightSource.js";
 import { Vec3 } from "../lib/vector3.js";
 import { Node } from "../src/js/node.js";
 import { Texture } from "../src/js/texture.js";
+import { Framebuffer } from "../src/js/framebuffer.js";
 
 
 document.addEventListener('DOMContentLoaded', main);
@@ -17,48 +18,62 @@ function main() {
   app.loadFiles(
     '../src/shaders/vShader2.vert',
     '../src/shaders/fShader2.frag',
-    '../src/meshes/fModel.json')
+    '../src/meshes/cubeModel.json')
   .then(data => {
     const gl = app.getGl();
 
-    const meshData = JSON.parse(data.mesh);
-
+    const meshData = JSON.parse(data.mesh);    
     const projection = new Projection(gl).setPerspective(100, 1, 2000);
-
-    const camera = new Camera().setModel(0, 0, 250, 0, 0, 0)
+    const camera = new Camera().setModel(0, 200, 250, 0, 0, 0)
     .setTarget(0, 0, 0).setUp(0, 1, 0).updateView();
-    
     const program = new ShaderProgram(gl, data.vShader, data.fShader).use();
 
     app.setProjection(projection).setCamera(camera).computeProjectionView();
 
-    const fMesh = new Mesh(gl, meshData, 3, program, app);
-
+    const cubeMesh = new Mesh(gl, meshData, 3, program, app);
     const light = new LightSource(200, 200, 10, 1, 1, 1, 10);
 
-    app.addMesh(fMesh, 'fMesh').addLight(light, 'gLight');
+    app.addLight(light, 'gLight').addMesh(cubeMesh, 'cubeMesh');
     
     return app.loadImage("./img/keyboard.jpg");
   })
   .then(img => {
     const gl = app.getGl();
     const texture = new Texture(gl, img);
-    app.meshes.fMesh.setTexture(texture);
-    app.meshes.fMesh.texture.create();
-    app.enableDepthTest().clearColor("1 0 0 1").clearDepth();
-    console.log(gl);
-    
-    app.drawScene();
+    let fbTexture = new Texture(gl).createEmptyTexture(256, 256, 0, 0);
 
+    let framebuffer = new Framebuffer(gl).create().setTexture(fbTexture);
+    app.meshes.cubeMesh.setTexture(texture);
+    app.meshes.cubeMesh.texture.createImageTexture();
+
+    draw(50, true);
     let angle = 0;
     requestAnimationFrame(rotate);
     function rotate() { 
-      angle = angle >= 360 ? 0 : angle + 1;
-      const transformation = new Mat4().setTransform(0, 0, 0, 1, 1, 1, angle, angle, 0);
-      app.meshes.fMesh.setModel(transformation);
-      app.enableDepthTest().clearColor("0 0 0 1").clearDepth();
-      app.drawScene();
+      angle = angle >= 360 ? 0 : angle + 0.5;
+      draw(angle, false);
       requestAnimationFrame(rotate);
+    }
+
+    function draw(a, isFirst) {
+      if (!isFirst) {
+        texture.bind();
+        framebuffer.bind();
+      }
+      
+      let transformation = new Mat4().setTransform(0, 0, 0, 200, 200, 200, a, a, 0);
+      app.meshes.cubeMesh.setModel(transformation);
+      app.enableDepthTest().clearColor("0.5 0.5 1.0 1").clearDepth();
+      app.drawScene();
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      
+      gl.bindTexture(gl.TEXTURE_2D, framebuffer.texture.texture);
+      transformation = new Mat4().setTransform(0, 0, 0, 200, 200, 200, 0, 0, 0);
+      app.meshes.cubeMesh.setModel(transformation);
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      app.enableDepthTest().clearColor("1 1 0.5 1").clearDepth();
+      app.drawScene();
     }
     
   });
