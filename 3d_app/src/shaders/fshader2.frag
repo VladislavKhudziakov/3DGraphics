@@ -1,12 +1,15 @@
 precision highp float;
-uniform vec3 u_ColorMult;
-uniform vec3 u_ColorOffset;
 
-varying vec4 v_Color;
+// varying vec4 v_Color;
 varying vec3 v_Normal;
+varying vec2 v_uv;
+
+uniform sampler2D u_texture;
 
 void main() {
-  vec3 pixelColor = normalize(v_Color.rgb) * u_ColorMult + u_ColorOffset;
+  // vec3 pixelColor = normalize(v_Color.rgb);
+  // vec4 attr_color = vec4(pixelColor, 1.);
+  vec4 color = texture2D(u_texture, v_uv);
 
-  gl_FragColor = vec4(pixelColor, 1.);
+  gl_FragColor = color;
 }

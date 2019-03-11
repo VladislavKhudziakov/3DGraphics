@@ -8,6 +8,7 @@ export class Mesh {
     this.program = program;
     this.model = new Mat4();
     this.scene = scene;
+    this.texture = undefined;
   };
 
 
@@ -28,12 +29,12 @@ export class Mesh {
 
   setModel(model) {
     this.model = model;
+
+    return this;
   };
 
-  setMVP(perspective, view) {
-    this.mvp = new Mat4();    
-    this.mvp.mul(perspective).mul(view).mul(this.model);
-    // console.log(this.mvp);
+  setTexture(texture) {
+    this.texture = texture;
 
     return this;
   };
@@ -41,19 +42,18 @@ export class Mesh {
   computeMVP() {
     this.mvp = Object.assign(new Mat4(), this.scene.projectionView);
     this.mvp.mul(this.model);
-    // console.log(this.mvp);
     
     return this;
   };
 
   initBuffers() {
-    this.program.initVBO('a_Position', this.data.position, this.size);
-    this.program.initVBO('a_Color', this.data.colors, this.size);
+    this.program.initVBO('a_Position', this.data.vertices, this.size);
+    // this.program.initVBO('a_Color', this.data.colors, this.size);
+    this.program.initVBO('a_uv', this.data.uv, 2);
   };
 
   initUniforms() {
     this.program.initUniform('u_MVP', this.mvp, 'matf', 4);
-    this.program.initUniform('u_ColorMult', this.colorMult, 'vecf', 3);
-    this.program.initUniform('u_ColorOffset', this.colorOffset, 'vecf', 3);
+    this.program.initUniform('u_texture', 0, 'i');
   };
 };

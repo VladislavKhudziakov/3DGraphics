@@ -7,6 +7,7 @@ import { Camera } from "../src/js/camera.js";
 import { LightSource } from "../src/js/lightSource.js";
 import { Vec3 } from "../lib/vector3.js";
 import { Node } from "../src/js/node.js";
+import { Texture } from "../src/js/texture.js";
 
 
 document.addEventListener('DOMContentLoaded', main);
@@ -19,10 +20,8 @@ function main() {
     '../src/meshes/fModel.json')
   .then(data => {
     const gl = app.getGl();
-    const sphereData = createFlattenedVertices(gl, primitives.createSphereVertices(10, 12, 6));
-    sphereData.vertices = sphereData.position;
-    sphereData.colors = sphereData.color;
-    sphereData.normals = sphereData.normal;
+
+    const meshData = JSON.parse(data.mesh);
 
     const projection = new Projection(gl).setPerspective(100, 1, 2000);
 
@@ -31,59 +30,37 @@ function main() {
     
     const program = new ShaderProgram(gl, data.vShader, data.fShader).use();
 
-    app.enableDepthTest().clearColor("0 0 0 1").clearDepth()
-    .setProjection(projection).setCamera(camera).computeProjectionView();
+    app.setProjection(projection).setCamera(camera).computeProjectionView();
 
-    const sunMesh = new Mesh(gl, sphereData, 3, program, app);
-    sunMesh.colorMult = new Vec3(0.4, 0.4, 0);
-    sunMesh.colorOffset = new Vec3(0.6, 0.6, 0);
-    sunMesh.setTransform(
-      0, 0, 0, 3, 3, 3, 0, 0, 0);
-
-    const earthMesh = new Mesh(gl, sphereData, 3, program, app);
-    earthMesh.colorMult = new Vec3(0.8, 0.5, 0.2);
-    earthMesh.colorOffset = new Vec3(0.2, 0.5, 0.8);
-    earthMesh.setTransform(
-      0, 0, 0, 2, 2, 2, 0, 0, 0);
-
-    const moonMesh = new Mesh(gl, sphereData, 3, program, app);
-    moonMesh.colorMult = new Vec3(0.1, 0.1, 0.1);
-    moonMesh.colorOffset = new Vec3(0.6, 0.6, 0.6);
-    moonMesh.setTransform(
-      0, 0, 0, 0.5, 0.5, 0.5, 0, 0, 0);
+    const fMesh = new Mesh(gl, meshData, 3, program, app);
 
     const light = new LightSource(200, 200, 10, 1, 1, 1, 10);
-    
-    const sunOrbitNode = new Node(new Mat4(), null);
-    const earthOrbitNode = new Node(
-      new Mat4().setTransform(0, 0, 100, 1, 1, 1, 0, 0, 0), sunOrbitNode);
-    const moonOrbitNode = new Node(
-      new Mat4().setTransform(0, 0, 45, 1, 1, 1, 0, 0, 0), earthOrbitNode);
-    const sunNode = new Node(sunMesh, sunOrbitNode);
-    const earthNode = new Node(earthMesh, earthOrbitNode);
-    const moonNode = new Node(moonMesh, moonOrbitNode);
-    sunOrbitNode.computeWorldMatrix();
 
-    app.addMesh(sunMesh, 'sphereMesh').addMesh(earthMesh, 'earthMesh').addMesh(moonMesh, 'moonMesh')
-    .addLight(light, 'gLight').setNode(sunOrbitNode);
+    app.addMesh(fMesh, 'fMesh').addLight(light, 'gLight');
+    
+    return app.loadImage("./img/keyboard.jpg");
+  })
+  .then(img => {
+    const gl = app.getGl();
+    const texture = new Texture(gl, img);
+    app.meshes.fMesh.setTexture(texture);
+    app.meshes.fMesh.texture.create();
+    app.enableDepthTest().clearColor("1 0 0 1").clearDepth();
+    console.log(gl);
     
     app.drawScene();
+
     let angle = 0;
     requestAnimationFrame(rotate);
-    
-    function rotate() {
+    function rotate() { 
+      angle = angle >= 360 ? 0 : angle + 1;
+      const transformation = new Mat4().setTransform(0, 0, 0, 1, 1, 1, angle, angle, 0);
+      app.meshes.fMesh.setModel(transformation);
       app.enableDepthTest().clearColor("0 0 0 1").clearDepth();
-      angle++;
-      sunOrbitNode.setTransform(
-        0, 0, 0, 1, 1, 1, 0, angle, 0);
-        earthOrbitNode.setTransform(
-        0, 0, 100, 1, 1, 1, 0, angle, 0);
-        moonOrbitNode.setTransform(
-        0, 0, 45, 1, 1, 1, 0, angle, 0);
-      app.node.computeWorldMatrix();
       app.drawScene();
       requestAnimationFrame(rotate);
     }
+    
   });
 }
 
