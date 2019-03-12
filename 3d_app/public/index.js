@@ -9,6 +9,7 @@ import { Vec3 } from "../lib/vector3.js";
 import { Node } from "../src/js/node.js";
 import { Texture } from "../src/js/texture.js";
 import { Framebuffer } from "../src/js/framebuffer.js";
+import { Renderbuffer } from "../src/js/renderbuffer.js";
 
 
 document.addEventListener('DOMContentLoaded', main);
@@ -39,13 +40,16 @@ function main() {
   })
   .then(img => {
     const gl = app.getGl();
+    
     const texture = new Texture(gl, img);
-    let fbTexture = new Texture(gl).createEmptyTexture(256, 256, 0, 0);
 
-    let framebuffer = new Framebuffer(gl).create().setTexture(fbTexture);
+    let fbTexture = new Texture(gl).createEmptyTexture(256, 256, 0, 0);
+    let renderBufffer = new Renderbuffer(gl).create();
+    let framebuffer = new Framebuffer(gl).create()
+    .setTexture(fbTexture).setRenderbuffer(renderBufffer);
+
     app.meshes.cubeMesh.setTexture(texture);
     app.meshes.cubeMesh.texture.createImageTexture();
-
     draw(50, true);
     let angle = 0;
     requestAnimationFrame(rotate);
@@ -69,7 +73,7 @@ function main() {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       
       gl.bindTexture(gl.TEXTURE_2D, framebuffer.texture.texture);
-      transformation = new Mat4().setTransform(0, 0, 0, 200, 200, 200, 0, 0, 0);
+      transformation = new Mat4().setTransform(0, 0, 0, 200, 200, 200, a / 2, a / 2, 0);
       app.meshes.cubeMesh.setModel(transformation);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       app.enableDepthTest().clearColor("1 1 0.5 1").clearDepth();
