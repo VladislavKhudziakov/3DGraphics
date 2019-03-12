@@ -6,6 +6,7 @@ export class Framebuffer {
     return this;
   }
 
+
   create() {
     const gl = this.gl;
 
@@ -13,7 +14,8 @@ export class Framebuffer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
 
     return this;
-  }
+  };
+
 
   bind() {
     const gl = this.gl;
@@ -21,7 +23,8 @@ export class Framebuffer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
 
     return this;
-  }
+  };
+
   
   setTexture(texture, apply = true) {
     const gl = this.gl;
@@ -35,7 +38,8 @@ export class Framebuffer {
 
     gl.viewport(0, 0, this.texture.width, this.texture.height);
     return this;
-  }
+  };
+
 
   setRenderbuffer(renderbuffer, apply = true) {
     const gl = this.gl;
@@ -52,7 +56,8 @@ export class Framebuffer {
     }
 
     return this;
-  }
+  };
+
 
   applyTexture() {
     gl.framebufferTexture2D(
@@ -61,7 +66,8 @@ export class Framebuffer {
     
     gl.viewport(0, 0, this.texture.width, this.texture.height);
     return this;
-  }
+  };
+
 
   applyRenderbufferAsDepthBuffer() {
     gl.renderbufferStorage(
@@ -70,5 +76,5 @@ export class Framebuffer {
     gl.framebufferRenderbuffer(
       gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, 
       gl.RENDERBUFFER, this.renderbuffer.renderbuffer);
-  }
+  };
 }

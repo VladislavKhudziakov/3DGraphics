@@ -826,7 +826,7 @@
    */
   function createAugmentedTypedArray(numComponents, numElements, opt_type) {
     var Type = opt_type || Float32Array;
-    return augmentTypedArray(new Type(numComponents * numElements), numComponents);
+    return augmentTypedArray(new Array(numComponents * numElements), numComponents);
   }
 
   function createBufferFromTypedArray(gl, array, type, drawType) {

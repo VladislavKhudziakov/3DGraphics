@@ -12,7 +12,6 @@ export class Scene {
     this.camera = null;
     this.projectionView = null;
     this.node = null;
-    this.model = new Mat4();
   };
 
 
@@ -37,6 +36,13 @@ export class Scene {
   };
 
 
+  initMeshes() {
+    for (let i = 0; i < this.app.materials.length; i++) {
+      const material = this.app.materials[i];
+    }
+  }
+
+
   addLight(light, name) {
     this.lights[name] = light;
 
@@ -51,12 +57,27 @@ export class Scene {
   };
 
 
+  // setPerspectiveProjection(fov, near, far) {
+  //   this.projection = new Projection(gl).setPerspective(fov, near, far);
+
+  //   return this;
+  // };
+
+
   setCamera(camera) {
     this.camera = camera;
-
+    
     return this;
   };
 
+  
+  // setCamera(
+  //   cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
+  //   this.camera = new Camera().setModel(cX, cY, cZ, cAX, cAY, cAZ)
+  //   .setTarget(tX, tY, tZ).setUp(upX, upY, upZ).updateView();
+    
+  //   return this;
+  // }
 
   computeProjectionView() {
     this.projectionView = new Mat4().mul(this.projection.projection).mul(this.camera.view);
@@ -65,15 +86,11 @@ export class Scene {
   };
 
 
-  setModel(model) {
-    this.model = model;
+  setNode(node) {
+    this.node = node;
 
     return this;
   };
-
-  setNode(node) {
-    this.node = node;
-  }
 
 
   clearColor(colorString) {
@@ -116,7 +133,9 @@ export class Scene {
         currMesh.draw();
       }
     }
-  }
+
+    return this;
+  };
 
 
   loadFile(url) {

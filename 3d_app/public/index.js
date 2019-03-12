@@ -10,11 +10,32 @@ import { Node } from "../src/js/node.js";
 import { Texture } from "../src/js/texture.js";
 import { Framebuffer } from "../src/js/framebuffer.js";
 import { Renderbuffer } from "../src/js/renderbuffer.js";
+import { App } from "../src/js/app.js";
 
 
 document.addEventListener('DOMContentLoaded', main);
 
+const fshadersNames = ["fShader1.frag", "fShader2.frag"];
+const vShadersNames = ["vShader1.vert", "vShader2.vert"];
+const textures = ["f-texture.png", "keyboard.jpg"];
+const materials = ["cube.json"];
+
+// const app = new App('canvas');
+// app.loadShaders(vShadersNames, './shaders/', 'vertex')
+// .then(() => app.loadShaders(fshadersNames, './shaders/', 'fragment'))
+// .then( () => app.loadMaterials(materials, './materials/'));
+// // .then(() => app.loadTextures(textures, './img/'))
+// // .then(() => {console.log(app.textures);
+// // });
+
+
 function main() {
+  const files = [
+    '../src/shaders/vShader2.vert',
+    '../src/shaders/fShader2.frag',
+    '../src/meshes/cubeModel.json'
+  ];
+
   const scene = new Scene('canvas');
   scene.loadFiles(
     '../src/shaders/vShader2.vert',
@@ -73,7 +94,7 @@ function main() {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       
       gl.bindTexture(gl.TEXTURE_2D, framebuffer.texture.texture);
-      transformation = new Mat4().setTransform(0, 0, 0, 200, 200, 200, a / 2, a / 2, 0);
+      transformation = new Mat4().setTransform(0, 0, 0, 200, 200, 200, a, a, 0);
       scene.meshes.cubeMesh.setModel(transformation);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       scene.enableDepthTest().clearColor("1 1 0.5 1").clearDepth();
@@ -82,14 +103,3 @@ function main() {
     
   });
 }
-
-var createFlattenedVertices = function(gl, vertices) {
-  return primitives.makeRandomVertexColors(
-    primitives.deindexVertices(vertices),
-    {
-      vertsPerColor: 6,
-      rand: function(ndx, channel) {
-        return channel < 3 ? ((128 + Math.random() * 128) | 0) : 255;
-      }
-    })
-};

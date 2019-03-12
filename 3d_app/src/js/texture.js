@@ -1,16 +1,21 @@
 export class Texture {
-  constructor(gl, img) {
+  constructor(gl, img, fileName) {
     this.gl = gl;
     this.texture = undefined;
     this.textureImage = img;
+    this.fileName = fileName;
 
     return this;
   }
 
-  createImageTexture() {
+  createImageTexture(bind = true) {
     const gl = this.gl;
     this.texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    
+    if (bind) {      
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    }
+    
     gl.texImage2D(
       gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.textureImage);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);

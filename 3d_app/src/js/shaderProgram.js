@@ -13,6 +13,18 @@ export class ShaderProgram {
     return this;
   };
 
+  // constructor(gl, vShader, fShader) {
+  //   this._gl = gl;
+
+  //   this.vertexShader = vShader;
+  //   this.fragmentShader = fShader;
+
+  //   this.VBOs = {};
+  //   this.uniforms = {};
+  //   return this;
+  // };
+
+
 
   _initShader(shaderSourse, shaderType) {
     const gl = this._gl;
@@ -35,6 +47,23 @@ export class ShaderProgram {
     this.program = gl.createProgram();
     gl.attachShader(this.program, this.vertexShader);
     gl.attachShader(this.program, this.fragmentShader);
+    gl.linkProgram(this.program);
+
+    const message = gl.getProgramInfoLog(this.program);
+
+    if (message.length > 0) {
+      throw message;
+    } else {
+      return this;
+    }
+  };
+
+
+  compile() {
+    const gl = this._gl;
+    this.program = gl.createProgram();
+    gl.attachShader(this.program, this.vertexShader.shader);
+    gl.attachShader(this.program, this.fragmentShader.shader);
     gl.linkProgram(this.program);
 
     const message = gl.getProgramInfoLog(this.program);
