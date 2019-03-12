@@ -53,6 +53,7 @@ export class ShaderProgram {
     return this;
   };
 
+
   initVBO(bufferName, data, size, init = true) {
     const gl = this._gl;
     this.VBOs[bufferName] = new VBO(gl, this.program, bufferName, data, size);
@@ -61,7 +62,7 @@ export class ShaderProgram {
     }
 
     return this;
-  }
+  };
 
   initUniform(uniformName, data, type, index, init = true, send = true) {
     const gl = this._gl;
@@ -92,5 +93,5 @@ export class ShaderProgram {
     }
 
     return this;
-  }
+  };
 }

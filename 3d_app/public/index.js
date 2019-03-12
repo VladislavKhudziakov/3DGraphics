@@ -1,4 +1,4 @@
-import { App } from "../src/js/app.js"
+import { Scene } from "../src/js/scene.js"
 import { Mat4 } from "../lib/matrix4.js";
 import { ShaderProgram } from "../src/js/shaderProgram.js";
 import { Mesh } from "../src/js/mesh.js";
@@ -15,13 +15,13 @@ import { Renderbuffer } from "../src/js/renderbuffer.js";
 document.addEventListener('DOMContentLoaded', main);
 
 function main() {
-  const app = new App('canvas');
-  app.loadFiles(
+  const scene = new Scene('canvas');
+  scene.loadFiles(
     '../src/shaders/vShader2.vert',
     '../src/shaders/fShader2.frag',
     '../src/meshes/cubeModel.json')
   .then(data => {
-    const gl = app.getGl();
+    const gl = scene.getGl();
 
     const meshData = JSON.parse(data.mesh);    
     const projection = new Projection(gl).setPerspective(100, 1, 2000);
@@ -29,17 +29,17 @@ function main() {
     .setTarget(0, 0, 0).setUp(0, 1, 0).updateView();
     const program = new ShaderProgram(gl, data.vShader, data.fShader).use();
 
-    app.setProjection(projection).setCamera(camera).computeProjectionView();
+    scene.setProjection(projection).setCamera(camera).computeProjectionView();
 
-    const cubeMesh = new Mesh(gl, meshData, 3, program, app);
+    const cubeMesh = new Mesh(gl, meshData, 3, program, scene);
     const light = new LightSource(200, 200, 10, 1, 1, 1, 10);
 
-    app.addLight(light, 'gLight').addMesh(cubeMesh, 'cubeMesh');
+    scene.addLight(light, 'gLight').addMesh(cubeMesh, 'cubeMesh');
     
-    return app.loadImage("./img/keyboard.jpg");
+    return scene.loadImage("./img/keyboard.jpg");
   })
   .then(img => {
-    const gl = app.getGl();
+    const gl = scene.getGl();
     
     const texture = new Texture(gl, img);
 
@@ -48,8 +48,8 @@ function main() {
     let framebuffer = new Framebuffer(gl).create()
     .setTexture(fbTexture).setRenderbuffer(renderBufffer);
 
-    app.meshes.cubeMesh.setTexture(texture);
-    app.meshes.cubeMesh.texture.createImageTexture();
+    scene.meshes.cubeMesh.setTexture(texture);
+    scene.meshes.cubeMesh.texture.createImageTexture();
     draw(50, true);
     let angle = 0;
     requestAnimationFrame(rotate);
@@ -66,18 +66,18 @@ function main() {
       }
       
       let transformation = new Mat4().setTransform(0, 0, 0, 200, 200, 200, a, a, 0);
-      app.meshes.cubeMesh.setModel(transformation);
-      app.enableDepthTest().clearColor("0.5 0.5 1.0 1").clearDepth();
-      app.drawScene();
+      scene.meshes.cubeMesh.setModel(transformation);
+      scene.enableDepthTest().clearColor("0.5 0.5 1.0 1").clearDepth();
+      scene.drawScene();
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       
       gl.bindTexture(gl.TEXTURE_2D, framebuffer.texture.texture);
       transformation = new Mat4().setTransform(0, 0, 0, 200, 200, 200, a / 2, a / 2, 0);
-      app.meshes.cubeMesh.setModel(transformation);
+      scene.meshes.cubeMesh.setModel(transformation);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-      app.enableDepthTest().clearColor("1 1 0.5 1").clearDepth();
-      app.drawScene();
+      scene.enableDepthTest().clearColor("1 1 0.5 1").clearDepth();
+      scene.drawScene();
     }
     
   });
