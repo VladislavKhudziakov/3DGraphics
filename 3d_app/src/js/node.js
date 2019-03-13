@@ -34,6 +34,7 @@ export class Node {
     }
     this.parentNode = parentNode;
     this.parentNode.addChild(this);
+    
     return this;
   };
 
@@ -54,8 +55,7 @@ export class Node {
   computeWorldMatrix() {
     if (this.parentNode) {
       const worldMatrix = Object.assign(new Mat4(), this.parentNode.localMatrix);
-      // console.log(worldMatrix);
-      
+
       this.localMatrix = worldMatrix.mul(this._localMatrix);
     } else {
       this.localMatrix = this._localMatrix;

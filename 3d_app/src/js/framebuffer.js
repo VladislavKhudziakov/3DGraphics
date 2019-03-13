@@ -4,7 +4,7 @@ export class Framebuffer {
     this.framebuffer = undefined;
 
     return this;
-  }
+  };
 
 
   create() {
@@ -21,6 +21,15 @@ export class Framebuffer {
     const gl = this.gl;
     gl.viewport(0, 0, this.texture.width, this.texture.height);
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+
+    return this;
+  };
+
+
+  unbind() {
+    const gl = this.gl;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     return this;
   };

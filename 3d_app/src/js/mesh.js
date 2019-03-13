@@ -51,10 +51,10 @@ export class Mesh {
 
 
   useTexture() {
-    this.texture.use();
+    this.texture.bind();
     
     return this;
-  }
+  };
 
 
   compileShaderProgram() {
@@ -66,6 +66,7 @@ export class Mesh {
     return this;
   };
 
+  
   useShaderProgram() {
     this.program.use();
 
@@ -87,17 +88,22 @@ export class Mesh {
     }
 
     if (this.data.colors) {
-      this.program.initVBO('a_Color', this.data.colors, 3);
+      this.program.initVBO('a_Color', this.data.colors, this.size);
+    }
+
+    if (this.data.normals) {
+      this.program.initVBO('a_uv', this.data.normals, 3);
     }
 
     if (this.data.uv) {
       this.program.initVBO('a_uv', this.data.uv, 2);
     }
+
+    return this;
   };
 
 
   initUniforms() {
-
     if (this.mvp) {
       this.program.initUniform('u_MVP', this.mvp, 'matf', 4);
     }
@@ -107,7 +113,9 @@ export class Mesh {
     }
 
     if (this.scene.light) {
-      // this.program.initUniform('u_texture', 0, 'i');
+      this.program.initUniform('u_texture', this.scene.light.position, 'vecf', 3);
+      this.program.initUniform('u_texture', this.scene.light.color, 'vecf', 3);
+      this.program.initUniform('u_texture', this.scene.light.power, 'f');
     }
     
     return this;

@@ -106,9 +106,12 @@ export class App {
     const gl = this.gl;
     for (let i = 0; i < texturesNames.length; i++) {
       const url = `${folderPath}${texturesNames[i]}`;
+
       const img = await this.loadImage(url).catch(console.error);
-      const texture = new Texture(gl, img, texturesNames[i])
-      .createImageTexture();
+
+      const texture = new Texture(
+        gl, img, texturesNames[i]).createImageTexture();
+
       this.textures.push(texture);
     }
 
@@ -191,5 +194,15 @@ export class App {
     this.scene.drawScene();
 
     return this;
+  };
+
+
+  getMesh(name) {
+    return this.meshes.find(mesh => mesh.name === name);
+  };
+
+
+  getScene() {
+    return this.scene;
   };
 }

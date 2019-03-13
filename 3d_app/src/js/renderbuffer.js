@@ -4,7 +4,8 @@ export class Renderbuffer {
     this.renderbuffer = undefined;
 
     return this;
-  }
+  };
+  
 
   create() {
     const gl = this.gl;
@@ -13,11 +14,19 @@ export class Renderbuffer {
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
 
     return this;
-  }
+  };
+
 
   bind() {
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
 
     return this;
-  }
+  };
+
+
+  unbind() {
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+    return this;
+  };
 }

@@ -13,6 +13,7 @@ export class ShaderProgram {
     this.uniforms = {};
     return this;
   };
+  
 
   compile() {
     const gl = this.gl;
@@ -48,6 +49,7 @@ export class ShaderProgram {
     return this;
   };
 
+  
   initUniform(uniformName, data, type, index, init = true, send = true) {
     const gl = this.gl;
     this.uniforms[uniformName] = new Uniform(
