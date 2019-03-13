@@ -161,6 +161,7 @@ export class Mat4 {
     return this;
   };
 
+
   setPerspective(fov, aspect, near, far) {
     const fovRad = (Math.PI * fov) / 180;
     const tn = Math.tan(Math.PI * 0.5 - 0.5 * fovRad);
@@ -178,6 +179,7 @@ export class Mat4 {
 
     return this;
   };
+  
 
   setLookAt(camPos, targetPos, up) {
     

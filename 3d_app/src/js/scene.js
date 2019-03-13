@@ -1,10 +1,13 @@
 import {Mat4} from "../../lib/matrix4.js";
+import { Projection } from "./space.js";
+import { Camera } from "./camera.js";
+import { LightSource } from "./lightSource.js";
 
 export class Scene {
-  constructor(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    this._gl = canvas.getContext('webgl');
-    this.meshes = {};
+
+  constructor(app) {
+    this.app = app;
+    this.gl = app.getGl();
     this.drawOrder = [];
     this.lights = {};
 
@@ -12,25 +15,13 @@ export class Scene {
     this.camera = null;
     this.projectionView = null;
     this.node = null;
+
+    return this;
   };
 
 
-  async loadFiles(vShader, fShader, meshFile) {
-    
-    const vShaderSource = await this.loadFile(vShader).catch(console.error);
-    const fShaderSource = await this.loadFile(fShader).catch(console.error);
-    const mesh = await this.loadFile(meshFile).catch(console.error);
-
-    return {
-      vShader: vShaderSource,
-      fShader: fShaderSource,
-      mesh: mesh
-    }
-  };
-
-
-  addMesh(mesh, name) {
-    this.meshes[name] = mesh;
+  addMesh(mesh) {
+    this.meshes[mesh.name] = mesh;
 
     return this;
   };
@@ -40,7 +31,7 @@ export class Scene {
     for (let i = 0; i < this.app.materials.length; i++) {
       const material = this.app.materials[i];
     }
-  }
+  };
 
 
   addLight(light, name) {
@@ -50,34 +41,34 @@ export class Scene {
   };
 
 
-  setProjection(projection) {
-    this.projection = projection;
+  setPerspectiveProjection(fov, near, far) {
+    const gl = this.gl;
+    this.projection = new Projection(gl).setPerspective(fov, near, far);
 
     return this;
   };
 
 
-  // setPerspectiveProjection(fov, near, far) {
-  //   this.projection = new Projection(gl).setPerspective(fov, near, far);
+  setOrthographicProjection(left, right, top, bottom, near, far) {
+    this.projection = new Projection(gl).setOrtho(left, right, top, bottom, near, far);
 
-  //   return this;
-  // };
-
-
-  setCamera(camera) {
-    this.camera = camera;
-    
     return this;
   };
 
   
-  // setCamera(
-  //   cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
-  //   this.camera = new Camera().setModel(cX, cY, cZ, cAX, cAY, cAZ)
-  //   .setTarget(tX, tY, tZ).setUp(upX, upY, upZ).updateView();
+  setCamera(
+    cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
+    this.camera = new Camera().setModel(cX, cY, cZ, cAX, cAY, cAZ)
+    .setTarget(tX, tY, tZ).setUp(upX, upY, upZ).updateView();
     
-  //   return this;
-  // }
+    return this;
+  };
+
+
+  setLight(x, y, z, r, g, b, p) {
+    this.light = new LightSource(x, y, z, r, g, b, p);
+  };
+
 
   computeProjectionView() {
     this.projectionView = new Mat4().mul(this.projection.projection).mul(this.camera.view);
@@ -93,11 +84,10 @@ export class Scene {
   };
 
 
-  clearColor(colorString) {
-    const gl = this._gl;
-    const color = colorString.split(' ');
+  clearColor(r, g, b, a) {
+    const gl = this.gl;
     
-    gl.clearColor(+color[0], +color[1], +color[2], +color[3]);
+    gl.clearColor(r, g, b, a);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     return this;
@@ -105,7 +95,7 @@ export class Scene {
 
 
   clearDepth() {
-    const gl = this._gl;
+    const gl = this.gl;
     gl.clear(gl.DEPTH_BUFFER_BIT);
 
     return this;
@@ -113,7 +103,7 @@ export class Scene {
 
 
   enableDepthTest() {
-    const gl = this._gl;
+    const gl = this.gl;
     gl.enable(gl.DEPTH_TEST);
 
     return this;
@@ -121,52 +111,20 @@ export class Scene {
 
 
   getGl() {
-    return this._gl;
+    return this.gl;
   };
 
 
   drawScene() {
-    for (const key in this.meshes) {
-      if (this.meshes.hasOwnProperty(key)) {
-        const currMesh = this.meshes[key];
-        currMesh.computeMVP();
-        currMesh.draw();
-      }
+
+    for (let i = 0; i < this.app.meshes.length; i++) {
+      const mesh = this.app.meshes[i];
+      mesh.useTexture();
+      mesh.useShaderProgram();
+      mesh.computeMVP();
+      mesh.draw();
     }
 
     return this;
   };
-
-
-  loadFile(url) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-
-      xhr.open('GET', url);
-      xhr.send();
-
-      xhr.onload = function() {
-        if (xhr.status !== 200) {
-          reject(`error: ${xhr.status} ${xhr.statusText}`);
-        } else {
-          resolve(xhr.responseText);
-        }
-      };
-
-      xhr.onerror = function() {
-        reject(`error: ${xhr.status} ${xhr.statusText}`);
-      };
-
-    });
-  };
-
-  loadImage(url) {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-      image.src = url;
-      image.addEventListener('load', () => {
-        resolve(image);
-      });
-    });
-  }
 }

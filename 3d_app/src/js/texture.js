@@ -32,13 +32,13 @@ export class Texture {
   };
 
   
-  bind() {
+  use() {
     const gl = this.gl;
   
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
     return this;
-  }
+  };
 
   createEmptyTexture(width, height, border, level) {
     const gl = this.gl;
@@ -61,18 +61,18 @@ export class Texture {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
     return this;
-  }
+  };
 
   createColorTexture() {
 
-  }
+  };
 
   _isTexSizesPowerOfTwo() {
     return this._isPowerOfTwo(this.textureImage.width) && 
     this._isPowerOfTwo(this.textureImage.height);
-  }
+  };
 
   _isPowerOfTwo(value) {
     return (value & (value - 1)) == 0;
-  }
+  };
 }

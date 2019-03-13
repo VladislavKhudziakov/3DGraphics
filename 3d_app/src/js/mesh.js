@@ -2,31 +2,21 @@ import { Mat4 } from "../../lib/matrix4.js";
 import { ShaderProgram } from "./shaderProgram.js";
 
 export class Mesh {
-  constructor(gl, data, size, program, scene) {
+
+  constructor(gl, dataObj, vShader, fShader, scene) {
     this.gl = gl;
-    this.data = data;
-    this.size = size;
-    this.program = program;
+    this.data = dataObj.data;
+    this.size = dataObj.size;
+    this.name = dataObj.name;
+    this.vertexShader = vShader;
+    this.fragmentShader = fShader;
+    this.program = undefined;
     this.model = new Mat4();
     this.scene = scene;
     this.texture = undefined;
 
     return this;
   };
-
-  // constructor(gl, dataObj, vShader, fShader, scene) {
-  //   this.gl = gl;
-  //   this.data = dataObj.data;
-  //   this.size = dataObj.size;
-  //   this.vertexShader = vShader;
-  //   this.fragmentShader = fShader;
-  //   this.program = undefined;
-  //   this.model = new Mat4();
-  //   this.scene = scene;
-  //   this.texture = undefined;
-
-  //   return this;
-  // };
 
 
   draw() {
@@ -52,6 +42,7 @@ export class Mesh {
     return this;
   };
 
+
   setTexture(texture) {
     this.texture = texture;
 
@@ -59,11 +50,24 @@ export class Mesh {
   };
 
 
+  useTexture() {
+    this.texture.use();
+    
+    return this;
+  }
+
+
   compileShaderProgram() {
     const gl = this.gl;
 
     this.program = new ShaderProgram(
-      gl, this.vertexShader.shader, this.fragmentShader.shader);
+      gl, this.vertexShader, this.fragmentShader).compile();
+
+    return this;
+  };
+
+  useShaderProgram() {
+    this.program.use();
 
     return this;
   };

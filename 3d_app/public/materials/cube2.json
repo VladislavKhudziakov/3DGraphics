@@ -1,9 +1,9 @@
 {
-  "name": "cube",
+  "name": "cube2",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,
-  "textureSampler": "keyboard.jpg",
+  "textureSampler": "f-texture.png",
   "data": {
     "vertices": [
       -0.5, -0.5,  -0.5,
@@ -90,7 +90,6 @@
       1, 0,
       1, 0,
       0, 1,
-      1, 1
-    ]
+      1, 1]
   }
 }
