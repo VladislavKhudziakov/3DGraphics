@@ -84,6 +84,10 @@ export class App {
           mesh.setTexture(texture);
         }
       
+      // console.log(material.defTransform);
+      let [tx, ty, tz, sx, sy, sz, ax, ay, az] = material.defTransform;
+
+      mesh.setTransform(tx, ty, tz, sx, sy, sz, ax, ay, az);
       this.meshes.push(mesh);
     }
 

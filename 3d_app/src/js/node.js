@@ -2,9 +2,11 @@ import { Mat4 } from "../../lib/matrix4.js";
 import { Mesh } from "./mesh.js";
 
 export class Node {
-  constructor(localData, parentNode) {
+  constructor(localData, parentNode, name) {
     this.children = [];
 
+    this.name = name;
+    
     if (parentNode) {
       this.parentNode = parentNode;
       this.parentNode.addChild(this);
