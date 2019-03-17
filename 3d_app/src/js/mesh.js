@@ -66,7 +66,7 @@ export class Mesh {
 
   compileShaderProgram() {
     const gl = this.gl;
-
+    
     this.program = new ShaderProgram(
       gl, this.vertexShader, this.fragmentShader).compile();
 

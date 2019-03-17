@@ -5,13 +5,13 @@ import { LightSource } from "./lightSource.js";
 
 export class Scene {
 
-  constructor(app, materials, name) {
+  constructor(app, name) {
     this.app = app;
     this.gl = app.getGl();
     this.name = name;
     this.drawOrder = [];
     this.lights = {};
-    this.materials = materials;
+    this.materials = [];
     this.projection = null;
     this.camera = null;
     this.projectionView = null;
@@ -25,6 +25,13 @@ export class Scene {
 
     return this;
   };
+
+
+  addMaterial(material) {
+    this.materials.push(material);
+
+    return this;
+  }
 
 
   setPerspectiveProjection(fov, near, far) {
@@ -103,15 +110,15 @@ export class Scene {
 
   drawScene() {
 
-    for (let i = 0; i < this.materials.length; i++) {
-      const mesh = this.materials[i];
-      mesh.useTexture();
-      mesh.useShaderProgram();
-      mesh.computeMVP();
-      mesh.draw();
-    }
+    // for (let i = 0; i < this.materials.length; i++) {
+    //   const mesh = this.materials[i];
+    //   mesh.useTexture();
+    //   mesh.useShaderProgram();
+    //   mesh.computeMVP();
+    //   mesh.draw();
+    // }
 
-    // this.materials.foreach(material => material.drawMaterial());
+    this.materials.forEach(material => material.drawMaterial());
 
     return this;
   };

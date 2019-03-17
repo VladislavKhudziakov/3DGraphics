@@ -11,17 +11,8 @@ export class App {
   constructor(canvasId) {
     const canvas = document.getElementById(canvasId);
     this.gl = canvas.getContext('webgl');
-    this.files = [];
-
-    this.materials = [];
-    this.shaders = [];
-    this.textures = [];
-    this.meshes = [];
     this.scenes = [];
-
-    this.nodes = [];
-    this.scene = undefined;
-    
+    this.materials = [];
     return this;
   };
 
@@ -52,19 +43,21 @@ export class App {
   async loadShaders(shadersNames, folderPath, type) {
     const gl = this.gl;
 
+    let shaders = [];
+
     for (let i = 0; i < shadersNames.length; i++) {
       const url = `${folderPath}${shadersNames[i]}`;
       const file = await this.loadFile(url).catch(console.error);
       const shader = new Shader(gl, type, file, shadersNames[i]).compile();
-      this.shaders.push(shader);
+      shaders.push(shader);
     }
 
-    return this.shaders;
+    return shaders;
   };
 
 
   async loadMaterials(MaterialsNames, folderPath) {
-    const gl = this.gl;
+    let materials = [];
 
     for (let i = 0; i < MaterialsNames.length; i++) {
       const url = `${folderPath}${MaterialsNames[i]}`;
@@ -72,45 +65,10 @@ export class App {
 
       const material = JSON.parse(file);
 
-      this.materials.push(material);
-
-      const vShader = this.shaders.find(
-        shader => shader.fileName === material.vertexShader);
-      const fShader = this.shaders.find(
-        shader => shader.fileName === material.fragmentShader);
-      
-      let texture;
-
-      if (material.textureSampler) {
-        texture = this.textures.find(
-          currTexture => currTexture.fileName === material.textureSampler);
-      }
-
-      const mesh = new Mesh(
-        gl, material, vShader, fShader, this.scene).compileShaderProgram();
-
-      if (texture) {
-        mesh.setTexture(texture);
-      }
-      
-      let [tx, ty, tz, sx, sy, sz, ax, ay, az] = material.defTransform;
-
-      const modelMatrix = new Mat4().setTransform(
-        tx, ty, tz, 1, 1, 1, ax, ay, az);
-      
-      mesh.setTransform(0, 0, 0, sx, sy, sz, 0, 0, 0);
-
-      const modelNode = new Node(modelMatrix, null, material.name + "Model");
-      const meshNode = new Node(mesh, modelNode, material.name);
-      
-      this.nodes.push(modelNode);
-      this.nodes.push(meshNode);
-      this.meshes.push(mesh);
+      materials.push(material);
     }
-
-    this.createNodesTree();
     
-    return this.meshes;
+    return materials
   };
 
 
@@ -127,6 +85,9 @@ export class App {
 
   async loadTextures(texturesNames, folderPath) {
     const gl = this.gl;
+
+    let textures = [];
+
     for (let i = 0; i < texturesNames.length; i++) {
       const url = `${folderPath}${texturesNames[i]}`;
 
@@ -135,10 +96,10 @@ export class App {
       const texture = new Texture(
         gl, img, texturesNames[i]).createImageTexture();
 
-      this.textures.push(texture);
+      textures.push(texture);
     }
 
-    return this.textures;
+    return textures;
   };
 
 
@@ -147,19 +108,12 @@ export class App {
   };
 
 
-  createScene(materials, name) {
-    this.scene = new Scene(this, this.meshes, name);
+  createScene(name) {
+    const scene = new Scene(this, name);
+    this.scenes.push(scene);
 
     return this;
   };
-
-
-  // createScene(name) {
-  //   const scene = new Scene(this, name);
-  //   this.scenes.push(scene);
-
-  //   return this;
-  // };
 
 
   createFramebufferScene(width, height, name) {
@@ -172,53 +126,35 @@ export class App {
   };
 
 
-  setScenePerspective(fov, near, far) {
-    this.scene.setPerspectiveProjection(fov, near, far);
+  setScenePerspective(name, fov, near, far) {
+    const scene = this.getScene(name);
+    if (scene) {
+      scene.setPerspectiveProjection(fov, near, far);
+    }
 
     return this;
   };
 
 
-  // setScenePerspective(name, fov, near, far) {
-  //   const scene = this.scenes.find(scene => scene.name === name);
-  //   scene.setPerspectiveProjection(fov, near, far);
-
-  //   return this;
-  // };
-
-
-  setSceneOrtho(left, right, top, bottom, near, far) {
-    this.scene.setOrthographicProjection(left, right, top, bottom, near, far);
+  setSceneOrtho(name, left, right, top, bottom, near, far) {
+    const scene = this.getScene(name);
+    scene.setOrthographicProjection(left, right, top, bottom, near, far);
 
     return this;
   };
 
-  // setSceneOrtho(left, right, top, bottom, near, far) {
-  //   const scene = this.scenes.find(scene => scene.name === name);
-  //   scene.setOrthographicProjection(left, right, top, bottom, near, far);
-
-  //   return this;
-  // };
 
   setSceneCamera(
-    cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
-    this.scene.setCamera(cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ);
+    name, cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
+    const scene = this.getScene(name);
+    scene.setCamera(cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ);
     
     return this;
   };
-
-
-  // setSceneCamera(
-  //   name, cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
-  //   const scene = this.scenes.find(scene => scene.name === name);
-  //   scene.setCamera(cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ);
-    
-  //   return this;
-  // };
 
 
   createMaterial(name) {
-    const material = new Material(null, name);
+    const material = new Material(this.gl, null, name);
     this.materials.push(material);
 
     return this;
@@ -241,11 +177,11 @@ export class App {
   };
   
 
-  setMaterialTextures(name, textures) {
+  addMaterialTextures(name, textures) {
     const material = this.getMaterial(name);
 
     if (material) {
-      material.addTextures(textures);
+      material.addTexture(textures);
     }
 
     return this;
@@ -256,88 +192,135 @@ export class App {
     const material = this.getMaterial(name);
 
     if (material) {
-      material.setShaders(shaders);
+      material.addShader(shaders);
     }
 
     return this;
   };
+
 
   addMaterialShaders(name, shaders) {
     const material = this.getMaterial(name);
 
     if (material) {
-      material.addShaders(shaders);
+      material.addShader(shaders);
     }
 
     return this;
   };
 
 
-  setSceneLight() {
-    this.scene.setLight(x, y, z, r, g, b, p);
+  setMaterialScene(materialName, sceneName) {
+    const material = this.getMaterial(materialName);
+    const scene = this.getScene(sceneName);
+
+    if (material && scene) {
+      material.setScene(scene);
+    }
 
     return this;
   };
 
 
-  computeSceneProjectionView() {
-    this.scene.computeProjectionView();
+  initMaterial(name) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.initMeshes();
+      material.createNodesTree();
+    }
+
+    return this;
+  }
+
+
+  setMaterialsObjects(name, objects) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.setObjects(objects);
+    }
 
     return this;
   };
 
 
-  clearSceneColor(r = 0, g = 0, b = 0, a = 1) {
-    this.scene.clearColor(r, g, b, a);
+  addMaterialObjects(name, objects) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.addObject(objects);
+    }
 
     return this;
   };
 
 
-  clearSceneDepth() {
-    this.scene.enableDepthTest();
-    this.scene.clearDepth();
+  setSceneLight(name) {
+    const scene = this.getScene(name);
+
+    if (scene) {
+      scene.setLight(x, y, z, r, g, b, p);
+    }    
 
     return this;
   };
 
 
-  clearSceneBuffers() {
-    this.clearSceneColor();
-    this.clearSceneDepth();
+  computeSceneProjectionView(name) {
+    const scene = this.getScene(name);
 
-    return this;
-  };
-
-
-  drawScene() {
-    this.scene.drawScene();
-
-    return this;
-  };
-
-
-  getMesh(name) {
-    return this.meshes.find(mesh => mesh.name === name);
-  };
-
-
-  getScene() {
-    return this.scene;
-  };
-
-  createNodesTree() {
-    const rootNode = new Node(new Mat4(), null, 'rootModel');
-    this.nodes.push(rootNode);
+    if (scene) {
+      scene.computeProjectionView();
+    }
     
-    this.materials.forEach(material => {
-      const parentModelNode = this.nodes.find(
-        node => material.parentNode + "Model" === node.name);
-      
-      const currModelNode = this.nodes.find(
-        node => material.thisNode + "Model" === node.name);
-      
-      currModelNode.setParent(parentModelNode);
-    });
+    return this;
+  };
+
+
+  clearSceneColor(name, r = 0, g = 0, b = 0, a = 1) {
+    const scene = this.getScene(name);
+
+    if (scene) {
+      scene.clearColor(r, g, b, a);
+    }
+    
+    return this;
+  };
+
+
+  clearSceneDepth(name) {
+    const scene = this.getScene(name);
+
+    if (scene) {
+      scene.enableDepthTest();
+      scene.clearDepth();
+    }
+    
+    return this;
+  };
+
+
+  clearSceneBuffers(name) {
+    this.clearSceneColor(name);
+    this.clearSceneDepth(name);
+
+    return this;
+  };
+
+
+  drawScene(name) {
+    const scene = this.getScene(name);
+
+    if (scene) {
+      scene.drawScene();
+    }
+
+    return this;
+  };
+
+
+  getScene(name) {
+    return this.scenes.find(scene => scene.name === name);
   };
 }
