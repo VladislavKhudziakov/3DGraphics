@@ -5,33 +5,18 @@ import { LightSource } from "./lightSource.js";
 
 export class Scene {
 
-  constructor(app, materials) {
+  constructor(app, materials, name) {
     this.app = app;
     this.gl = app.getGl();
+    this.name = name;
     this.drawOrder = [];
     this.lights = {};
     this.materials = materials;
-
     this.projection = null;
     this.camera = null;
     this.projectionView = null;
-    this.node = null;
 
     return this;
-  };
-
-
-  addMesh(mesh) {
-    this.meshes[mesh.name] = mesh;
-
-    return this;
-  };
-
-
-  initMeshes() {
-    for (let i = 0; i < this.materials.length; i++) {
-      const material = this.materials[i];
-    }
   };
 
 
@@ -125,6 +110,8 @@ export class Scene {
       mesh.computeMVP();
       mesh.draw();
     }
+
+    // this.materials.foreach(material => material.drawMaterial());
 
     return this;
   };
