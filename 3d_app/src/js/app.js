@@ -5,6 +5,7 @@ import { Texture } from "./texture.js";
 import { Mat4 } from "../../lib/matrix4.js";
 import { Node } from "./node.js";
 import { FramebufferScene } from "./framebufferScene.js";
+import { Material } from "./material.js";
 
 export class App {
   constructor(canvasId) {
@@ -16,7 +17,8 @@ export class App {
     this.shaders = [];
     this.textures = [];
     this.meshes = [];
-    
+    this.scenes = [];
+
     this.nodes = [];
     this.scene = undefined;
     
@@ -145,8 +147,26 @@ export class App {
   };
 
 
-  createScene(materials) {
-    this.scene = new Scene(this, this.meshes);
+  createScene(materials, name) {
+    this.scene = new Scene(this, this.meshes, name);
+
+    return this;
+  };
+
+
+  // createScene(name) {
+  //   const scene = new Scene(this, name);
+  //   this.scenes.push(scene);
+
+  //   return this;
+  // };
+
+
+  createFramebufferScene(width, height, name) {
+    const gl = this.gl;
+
+    const scene = new FramebufferScene(gl, width, height, name);
+    this.scenes.push(scene);
 
     return this;
   };
@@ -159,17 +179,96 @@ export class App {
   };
 
 
+  // setScenePerspective(name, fov, near, far) {
+  //   const scene = this.scenes.find(scene => scene.name === name);
+  //   scene.setPerspectiveProjection(fov, near, far);
+
+  //   return this;
+  // };
+
+
   setSceneOrtho(left, right, top, bottom, near, far) {
     this.scene.setOrthographicProjection(left, right, top, bottom, near, far);
 
     return this;
   };
 
+  // setSceneOrtho(left, right, top, bottom, near, far) {
+  //   const scene = this.scenes.find(scene => scene.name === name);
+  //   scene.setOrthographicProjection(left, right, top, bottom, near, far);
+
+  //   return this;
+  // };
 
   setSceneCamera(
     cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
     this.scene.setCamera(cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ);
     
+    return this;
+  };
+
+
+  // setSceneCamera(
+  //   name, cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
+  //   const scene = this.scenes.find(scene => scene.name === name);
+  //   scene.setCamera(cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ);
+    
+  //   return this;
+  // };
+
+
+  createMaterial(name) {
+    const material = new Material(null, name);
+    this.materials.push(material);
+
+    return this;
+  };
+
+
+  getMaterial(name) {
+    return this.materials.find(material => material.name === name);
+  };
+
+
+  setMaterialTextures(name, textures) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.setTextures(textures);
+    }
+
+    return this;
+  };
+  
+
+  setMaterialTextures(name, textures) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.addTextures(textures);
+    }
+
+    return this;
+  };
+
+
+  setMaterialShaders(name, shaders) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.setShaders(shaders);
+    }
+
+    return this;
+  };
+
+  addMaterialShaders(name, shaders) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.addShaders(shaders);
+    }
+
     return this;
   };
 
@@ -240,12 +339,5 @@ export class App {
       
       currModelNode.setParent(parentModelNode);
     });
-  };
-
-  createFramebufferScene(width, height) {
-    const gl = this.gl;
-    this.framebufferScene = new FramebufferScene(gl, width, height);
-
-    return this;
   };
 }

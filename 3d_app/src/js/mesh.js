@@ -19,6 +19,13 @@ export class Mesh {
   };
 
 
+  setScene(scene) {
+    this.scene = scene;
+
+    return this;
+  }
+
+
   draw() {
     const gl = this.gl;
     this.initBuffers();
