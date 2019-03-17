@@ -5,11 +5,12 @@ import { LightSource } from "./lightSource.js";
 
 export class Scene {
 
-  constructor(app) {
+  constructor(app, materials) {
     this.app = app;
     this.gl = app.getGl();
     this.drawOrder = [];
     this.lights = {};
+    this.materials = materials;
 
     this.projection = null;
     this.camera = null;
@@ -28,8 +29,8 @@ export class Scene {
 
 
   initMeshes() {
-    for (let i = 0; i < this.app.materials.length; i++) {
-      const material = this.app.materials[i];
+    for (let i = 0; i < this.materials.length; i++) {
+      const material = this.materials[i];
     }
   };
 
@@ -117,8 +118,8 @@ export class Scene {
 
   drawScene() {
 
-    for (let i = 0; i < this.app.meshes.length; i++) {
-      const mesh = this.app.meshes[i];
+    for (let i = 0; i < this.materials.length; i++) {
+      const mesh = this.materials[i];
       mesh.useTexture();
       mesh.useShaderProgram();
       mesh.computeMVP();

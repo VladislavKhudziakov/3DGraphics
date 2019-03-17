@@ -1,9 +1,9 @@
 {
-  "name": "roflan_pominki",
+  "name": "neck",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,
-  "defTransform" : [0, -150, 0, 50, 50, 50, 0, 0, 0],
+  "defTransform" : [0, -50, 0, 50, 50, 50, 0, 0, 0],
   "textureSampler": "roflan_pominki.jpg",
   "thisNode": "neck",
   "parentNode": "torso",

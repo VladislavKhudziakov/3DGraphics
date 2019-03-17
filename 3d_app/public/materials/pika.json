@@ -1,9 +1,9 @@
 {
-  "name": "pika",
+  "name": "right-calf",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,
-  "defTransform" : [50, 100, 0, 50, 50, 50, 0, 0, 0],
+  "defTransform" : [0, 50, 0, 50, 50, 50, 0, 0, 0],
   "textureSampler": "pika.jpg",
   "thisNode": "right-calf",
   "parentNode": "right-leg",

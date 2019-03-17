@@ -1,5 +1,5 @@
 {
-  "name": "cat",
+  "name": "left-leg",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,

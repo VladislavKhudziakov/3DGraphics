@@ -1,9 +1,9 @@
 {
-  "name": "pepe",
+  "name": "right-foot",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,
-  "defTransform" : [50, 150, 0, 50, 50, 50, 0, 0, 0],
+  "defTransform" : [0, 50, 0, 50, 50, 50, 0, 0, 0],
   "textureSampler": "pepe.jpg",
   "thisNode": "right-foot",
   "parentNode": "right-calf",

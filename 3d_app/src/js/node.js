@@ -54,10 +54,19 @@ export class Node {
   };
 
 
+  transform(tx, ty, tz, sx, sy, sz, ax, ay, az) {
+    this._localMatrix.translate(tx, ty, tz)
+    .scale(sx, sy, sz).rotate(ax, ay, az);
+
+    return this;
+  }
+
+
   computeWorldMatrix() {
     if (this.parentNode) {
       const worldMatrix = Object.assign(new Mat4(), this.parentNode.localMatrix);
-
+      // console.log(worldMatrix);
+      
       this.localMatrix = worldMatrix.mul(this._localMatrix);
     } else {
       this.localMatrix = this._localMatrix;

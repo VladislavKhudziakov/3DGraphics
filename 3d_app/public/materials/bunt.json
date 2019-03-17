@@ -1,9 +1,9 @@
 {
-  "name": "bunt",
+  "name": "right-arm",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,
-  "defTransform" : [50, -100, 0, 50, 50, 50, 0, 0, 0],
+  "defTransform" : [50, 0, 0, 50, 50, 50, 0, 0, 0],
   "textureSampler": "bunt.jpg",
   "thisNode": "right-arm",
   "parentNode": "torso",

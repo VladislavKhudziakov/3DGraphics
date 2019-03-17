@@ -1,9 +1,9 @@
 {
-  "name": "jerry",
+  "name": "right-forearm",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,
-  "defTransform" : [100, -100, 0, 50, 50, 50, 0, 0, 0],
+  "defTransform" : [50, 0, 0, 50, 50, 50, 0, 0, 0],
   "textureSampler": "jerry.jpg",
   "thisNode": "right-forearm",
   "parentNode": "right-arm",

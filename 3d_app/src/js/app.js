@@ -2,6 +2,9 @@ import { Scene } from "./scene.js";
 import { Shader } from "./shader.js";
 import { Mesh } from "./mesh.js";
 import { Texture } from "./texture.js";
+import { Mat4 } from "../../lib/matrix4.js";
+import { Node } from "./node.js";
+import { FramebufferScene } from "./framebufferScene.js";
 
 export class App {
   constructor(canvasId) {
@@ -9,10 +12,12 @@ export class App {
     this.gl = canvas.getContext('webgl');
     this.files = [];
 
+    this.materials = [];
     this.shaders = [];
     this.textures = [];
     this.meshes = [];
     
+    this.nodes = [];
     this.scene = undefined;
     
     return this;
@@ -65,6 +70,8 @@ export class App {
 
       const material = JSON.parse(file);
 
+      this.materials.push(material);
+
       const vShader = this.shaders.find(
         shader => shader.fileName === material.vertexShader);
       const fShader = this.shaders.find(
@@ -80,17 +87,27 @@ export class App {
       const mesh = new Mesh(
         gl, material, vShader, fShader, this.scene).compileShaderProgram();
 
-        if (texture) {
-          mesh.setTexture(texture);
-        }
+      if (texture) {
+        mesh.setTexture(texture);
+      }
       
-      // console.log(material.defTransform);
       let [tx, ty, tz, sx, sy, sz, ax, ay, az] = material.defTransform;
 
-      mesh.setTransform(tx, ty, tz, sx, sy, sz, ax, ay, az);
+      const modelMatrix = new Mat4().setTransform(
+        tx, ty, tz, 1, 1, 1, ax, ay, az);
+      
+      mesh.setTransform(0, 0, 0, sx, sy, sz, 0, 0, 0);
+
+      const modelNode = new Node(modelMatrix, null, material.name + "Model");
+      const meshNode = new Node(mesh, modelNode, material.name);
+      
+      this.nodes.push(modelNode);
+      this.nodes.push(meshNode);
       this.meshes.push(mesh);
     }
 
+    this.createNodesTree();
+    
     return this.meshes;
   };
 
@@ -128,8 +145,8 @@ export class App {
   };
 
 
-  createScene() {
-    this.scene = new Scene(this);
+  createScene(materials) {
+    this.scene = new Scene(this, this.meshes);
 
     return this;
   };
@@ -208,5 +225,27 @@ export class App {
 
   getScene() {
     return this.scene;
+  };
+
+  createNodesTree() {
+    const rootNode = new Node(new Mat4(), null, 'rootModel');
+    this.nodes.push(rootNode);
+    
+    this.materials.forEach(material => {
+      const parentModelNode = this.nodes.find(
+        node => material.parentNode + "Model" === node.name);
+      
+      const currModelNode = this.nodes.find(
+        node => material.thisNode + "Model" === node.name);
+      
+      currModelNode.setParent(parentModelNode);
+    });
+  };
+
+  createFramebufferScene(width, height) {
+    const gl = this.gl;
+    this.framebufferScene = new FramebufferScene(gl, width, height);
+
+    return this;
   };
 }

@@ -1,9 +1,9 @@
 {
-  "name": "glad",
+  "name": "left-foot",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,
-  "defTransform" : [-50, 150, 0, 50, 50, 50, 0, 0, 0],
+  "defTransform" : [0, 50, 0, 50, 50, 50, 0, 0, 0],
   "textureSampler": "glad.jpg",
   "thisNode": "left-foot",
   "parentNode": "left-calf",

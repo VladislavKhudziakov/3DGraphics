@@ -1,5 +1,5 @@
 {
-  "name": "roflan_kaef",
+  "name": "torso",
   "vertexShader": "vShader2.vert",
   "fragmentShader": "fShader2.frag",
   "size": 3,
