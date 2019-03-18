@@ -10,6 +10,17 @@ export class App {
     this.gl = canvas.getContext('webgl');
     this.scenes = [];
     this.materials = [];
+<<<<<<< HEAD
+=======
+    this.shaders = [];
+    this.textures = [];
+    this.meshes = [];
+    this.scenes = [];
+
+    this.nodes = [];
+    this.scene = undefined;
+    
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
     return this;
   };
 
@@ -105,8 +116,30 @@ export class App {
   };
 
 
+<<<<<<< HEAD
   createScene(name) {
     const scene = new Scene(this, name);
+=======
+  createScene(materials, name) {
+    this.scene = new Scene(this, this.meshes, name);
+
+    return this;
+  };
+
+
+  // createScene(name) {
+  //   const scene = new Scene(this, name);
+  //   this.scenes.push(scene);
+
+  //   return this;
+  // };
+
+
+  createFramebufferScene(width, height, name) {
+    const gl = this.gl;
+
+    const scene = new FramebufferScene(gl, width, height, name);
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
     this.scenes.push(scene);
 
     return this;
@@ -121,6 +154,7 @@ export class App {
   };
 
 
+<<<<<<< HEAD
   renderInFramebufferScene(name) {
     const scene = this.getScene(name);
 
@@ -166,10 +200,28 @@ export class App {
   setSceneOrtho(name, left, right, top, bottom, near, far) {
     const scene = this.getScene(name);
     scene.setOrthographicProjection(left, right, top, bottom, near, far);
+=======
+  // setScenePerspective(name, fov, near, far) {
+  //   const scene = this.scenes.find(scene => scene.name === name);
+  //   scene.setPerspectiveProjection(fov, near, far);
+
+  //   return this;
+  // };
+
+
+  setSceneOrtho(left, right, top, bottom, near, far) {
+    this.scene.setOrthographicProjection(left, right, top, bottom, near, far);
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
 
     return this;
   };
 
+  // setSceneOrtho(left, right, top, bottom, near, far) {
+  //   const scene = this.scenes.find(scene => scene.name === name);
+  //   scene.setOrthographicProjection(left, right, top, bottom, near, far);
+
+  //   return this;
+  // };
 
   setSceneCamera(
     name, cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
@@ -180,8 +232,22 @@ export class App {
   };
 
 
+<<<<<<< HEAD
   createMaterial(name) {
     const material = new Material(this.gl, null, name);
+=======
+  // setSceneCamera(
+  //   name, cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ) {
+  //   const scene = this.scenes.find(scene => scene.name === name);
+  //   scene.setCamera(cX, cY, cZ, cAX, cAY, cAZ, tX, tY, tZ, upX, upY, upZ);
+    
+  //   return this;
+  // };
+
+
+  createMaterial(name) {
+    const material = new Material(null, name);
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
     this.materials.push(material);
 
     return this;
@@ -202,6 +268,7 @@ export class App {
 
     return this;
   };
+<<<<<<< HEAD
 
 
   setMaterialMeshTexture(matName, meshName, texture) {
@@ -209,10 +276,31 @@ export class App {
 
     if (material) {
       material.setMeshTexture(meshName, texture);
+=======
+  
+
+  setMaterialTextures(name, textures) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.addTextures(textures);
     }
 
     return this;
   };
+
+
+  setMaterialShaders(name, shaders) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.setShaders(shaders);
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
+    }
+
+    return this;
+  };
+<<<<<<< HEAD
   
 
   addMaterialTextures(name, textures) {
@@ -221,6 +309,22 @@ export class App {
     if (material) {
       material.addTexture(textures);
     }
+=======
+
+  addMaterialShaders(name, shaders) {
+    const material = this.getMaterial(name);
+
+    if (material) {
+      material.addShaders(shaders);
+    }
+
+    return this;
+  };
+
+
+  setSceneLight() {
+    this.scene.setLight(x, y, z, r, g, b, p);
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
 
     return this;
   };
@@ -325,6 +429,7 @@ export class App {
     
     return this;
   };
+<<<<<<< HEAD
 
 
   clearSceneColor(name, r = 0, g = 0, b = 0, a = 1) {
@@ -372,4 +477,6 @@ export class App {
   getScene(name) {
     return this.scenes.find(scene => scene.name === name);
   };
+=======
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
 }

@@ -5,12 +5,17 @@ import { LightSource } from "./lightSource.js";
 
 export class Scene {
 
+<<<<<<< HEAD
   constructor(app, name) {
+=======
+  constructor(app, materials, name) {
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
     this.app = app;
     this.gl = app.getGl();
     this.name = name;
     this.drawOrder = [];
     this.lights = {};
+<<<<<<< HEAD
     this.materials = [];
     this.projection = null;
     this.camera = null;
@@ -22,13 +27,24 @@ export class Scene {
 
   addLight(light, name) {
     this.lights[name] = light;
+=======
+    this.materials = materials;
+    this.projection = null;
+    this.camera = null;
+    this.projectionView = null;
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
 
     return this;
   };
 
 
+<<<<<<< HEAD
   addMaterial(material) {
     this.materials.push(material);
+=======
+  addLight(light, name) {
+    this.lights[name] = light;
+>>>>>>> 454b7b25b460646d09817ff67d0513167ab7a1a7
 
     return this;
   }
@@ -119,6 +135,8 @@ export class Scene {
     // }
 
     this.materials.forEach(material => material.drawMaterial());
+
+    // this.materials.foreach(material => material.drawMaterial());
 
     return this;
   };
