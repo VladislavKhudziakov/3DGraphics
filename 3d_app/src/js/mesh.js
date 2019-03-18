@@ -58,7 +58,9 @@ export class Mesh {
 
 
   useTexture() {
-    this.texture.bind();
+    if (this.texture) {
+      this.texture.bind();
+    }
     
     return this;
   };

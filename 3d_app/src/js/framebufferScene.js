@@ -4,26 +4,18 @@ import { Renderbuffer } from "./renderbuffer.js";
 import { Scene } from "./scene.js";
 
 export class FramebufferScene  extends Scene {
-  constructor(app, width, height, materials) {
-    super(app, materials);
+  constructor(app, name, width, height) {
+    super(app, name);
     this.app = app;
-    this.gl = gl;
+    this.gl = this.app.getGl();
 
     this.depthbuffer = new Renderbuffer(this.gl).create();
     this.colorbuffer = new Texture(this.gl)
     .createEmptyTexture(width, height, 0, 0);
     this.framebuffer = new Framebuffer(this.gl)
-    .setRenderbuffer(this.depthbuffer)
-    .setTexture(this.colorbuffer);
-
-    this.drawOrder = [];
-    this.lights = {};
-    this.materials = materials;
-
-    this.projection = null;
-    this.camera = null;
-    this.projectionView = null;
-    this.node = null;
+    .create()
+    .setTexture(this.colorbuffer)
+    .setRenderbuffer(this.depthbuffer);
 
     return this;
   };
@@ -44,7 +36,7 @@ export class FramebufferScene  extends Scene {
   };
   
 
-  StopRenderIn() {
+  stopRenderIn() {
     this.depthbuffer.unbind();
     this.framebuffer.unbind();
 
@@ -56,6 +48,11 @@ export class FramebufferScene  extends Scene {
     this.colorbuffer.bind();
 
     return this;
+  };
+
+
+  getColorbuffer() {
+    return this.colorbuffer;
   };
 
 

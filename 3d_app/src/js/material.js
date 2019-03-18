@@ -72,6 +72,27 @@ export class Material {
   };
 
 
+  setMeshTexture(meshName, texture) {
+    const mesh = this.getMesh(meshName);
+    
+    if (mesh) {
+      mesh.setTexture(texture);
+    }
+
+    return this;
+  };
+
+
+  getMesh(name) {
+    return this.meshes.find(mesh => mesh.name === name);
+  };
+
+
+  getNode(name) {
+    return this.nodes.find(node => node.name === name);
+  };
+
+
   setObjects(objects) {
     this.objects = objects;
 
@@ -168,5 +189,5 @@ export class Material {
     });
 
     return this;
-  }
+  };
 }

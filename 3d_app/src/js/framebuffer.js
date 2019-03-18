@@ -9,8 +9,9 @@ export class Framebuffer {
 
   create() {
     const gl = this.gl;
-
+    
     this.framebuffer = gl.createFramebuffer();
+    
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
 
     return this;

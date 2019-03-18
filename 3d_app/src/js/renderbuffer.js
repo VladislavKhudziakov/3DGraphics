@@ -18,6 +18,8 @@ export class Renderbuffer {
 
 
   bind() {
+    const gl = this.gl;
+    
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
 
     return this;
@@ -25,6 +27,8 @@ export class Renderbuffer {
 
 
   unbind() {
+    const gl = this.gl;
+
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
     return this;

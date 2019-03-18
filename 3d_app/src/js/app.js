@@ -1,9 +1,6 @@
 import { Scene } from "./scene.js";
 import { Shader } from "./shader.js";
-import { Mesh } from "./mesh.js";
-import { Texture } from "./texture.js";
-import { Mat4 } from "../../lib/matrix4.js";
-import { Node } from "./node.js";
+import { Texture } from "./texture.js";;
 import { FramebufferScene } from "./framebufferScene.js";
 import { Material } from "./material.js";
 
@@ -116,13 +113,43 @@ export class App {
   };
 
 
-  createFramebufferScene(width, height, name) {
-    const gl = this.gl;
-
-    const scene = new FramebufferScene(gl, width, height, name);
+  createFramebufferScene(name, width, height) {
+    const scene = new FramebufferScene(this, name, width, height);
     this.scenes.push(scene);
 
     return this;
+  };
+
+
+  renderInFramebufferScene(name) {
+    const scene = this.getScene(name);
+
+    if (scene) {
+      scene.renderIn();
+    }
+
+    return this;
+  };
+
+
+  stopRenderInFramebufferScene(name) {
+    const scene = this.getScene(name);
+    
+    if (scene) {
+      scene.stopRenderIn();
+    }
+
+    return this;
+  };
+
+  getFbSceneTexture(name) {
+    const scene = this.getScene(name);
+
+    if (scene) {
+      return scene.getColorbuffer();
+    } else {
+      return -1;
+    }
   };
 
 
@@ -175,6 +202,17 @@ export class App {
 
     return this;
   };
+
+
+  setMaterialMeshTexture(matName, meshName, texture) {
+    const material = this.getMaterial(matName);
+
+    if (material) {
+      material.setMeshTexture(meshName, texture);
+    }
+
+    return this;
+  };
   
 
   addMaterialTextures(name, textures) {
@@ -210,6 +248,17 @@ export class App {
   };
 
 
+  getMaterialNode(matName, nodeName) {
+    const material = this.getMaterial(matName);
+
+    if (material) {
+      return material.getNode(nodeName);
+    } else {
+      return -1;
+    }
+  };
+
+
   setMaterialScene(materialName, sceneName) {
     const material = this.getMaterial(materialName);
     const scene = this.getScene(sceneName);
@@ -231,7 +280,7 @@ export class App {
     }
 
     return this;
-  }
+  };
 
 
   setMaterialsObjects(name, objects) {
@@ -301,8 +350,8 @@ export class App {
   };
 
 
-  clearSceneBuffers(name) {
-    this.clearSceneColor(name);
+  clearSceneBuffers(name, r = 0, g = 0, b = 0, a = 1) {
+    this.clearSceneColor(name, r, g, b, a);
     this.clearSceneDepth(name);
 
     return this;
